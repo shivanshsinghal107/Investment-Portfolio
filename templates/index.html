@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+  Home
+{% endblock %}
+
+{% block body %}
+  {% if loginstatus == 'True' %}
+    <a href = "/">Hey {{curruser}}</a>
+    <a href = "/logout">Logout</a>
+  {% else %}
+    <a href = "/login">Login</a>
+    <a href = "/register">Register</a>
+  {% endif %}
+  <br><br>
+  <form>
+    <select class="form-control" name="asset">
+      <option value="Dividend Yielding Equity" selected>Dividend Yielding Equity</option>
+      <option value="Stocks">Stocks</option>
+      <option value="Government and Corporate Bonds">Government and Corporate Bonds</option>
+      <option value="Commodities">Commodities</option>
+      <option value="Forex Currencies">Forex Currencies</option>
+    </select>
+    <br>
+    <button type="submit" class="btn btn-primary">Proceed</button>
+  </form>
+{% endblock %}

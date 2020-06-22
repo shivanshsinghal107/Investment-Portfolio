@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+  Log in to your account
+{% endblock %}
+
+{% block body %}
+  <a href="/">Home</a>
+  <a href="/register">Register</a>
+  <form action="{{ url_for('login') }}" method="post">
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" name="username" class="form-control" id="username" placeholder="Username">
+      <label for="password">Password</label>
+      <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+{% endblock %}
