@@ -6,11 +6,10 @@
 ## Key Structure
 With that said, we are going to create multiple **low risk and high return portfolios**. What makes them unique is that they demand very little capital because, as students, we are mostly living on our parent's money. Still, this portfolio is an excellent opportunity for all income classes.<br>
 We will analyze past data from various equities and other income yielding assets. This portfolio will comprise of:
-- Dividend-yielding equity
 - Stocks mostly from mid-cap
-- Government and corporate bonds
+- Government and Corporate Bonds
 - Commodities
-- Forex(Currencies)
+- Forex Currencies
 
 This will be a diversified portfolio and protect us from systematic and unsystematic risk. This endeavor will act as the stepping stone towards our financial freedom.
 
