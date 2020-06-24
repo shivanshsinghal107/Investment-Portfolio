@@ -1,9 +1,58 @@
 {% extends "layout.html" %}
 
 {% block heading %}
-  asset
+  {{category}}
 {% endblock %}
 
 {% block body %}
-  
+  {% if loginstatus == 'True' %}
+    <a href = "/">Home</a>
+    <a href = "/portfolio">Hey {{curruser}}</a>
+    <a href = "/logout">Logout</a>
+  {% else %}
+    <a href = "/login">Login</a>
+    <a href = "/register">Register</a>
+  {% endif %}
+  <br><br>
+  <table class="table table-dark">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Symbol</th>
+        <th scope="col">Name</th>
+        <th scope="col">Close</th>
+        <th scope="col">Currency</th>
+        <th scope="col">yfinance</th>
+        {% if loginstatus == 'True' %}
+          <th scope="col">Quantity</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in data %}
+        <tr>
+          <th scope="row">{{loop.index}}</th>
+          <td>{{d.symbol}}</td>
+          <td>{{d.name}}</td>
+          <td>{{prices[loop.index-1]}}</td>
+          <td>{{d.currency}}</td>
+          <td><a href="{{d.url}}">{{d.yf_name}}</a></td>
+          {% if loginstatus == 'True' %}
+            <td>
+              <form action="{{url_for('buy', id = d.id, price = prices[loop.index-1])}}" method="POST">
+                <div class="form-row align-items-center">
+                  <div class="col-auto">
+                    <input type="number" name="quantity" class="form-control mb-2" placeholder="Quantity">
+                  </div>
+                  <div class="col-auto">
+                    <button type="submit" class="btn btn-primary mb-2">Buy</button>
+                  </div>
+                </div>
+              </form>
+            </td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
