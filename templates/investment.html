@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+  {{curruser}}'s Investments
+{% endblock %}
+
+{% block body %}
+  <a href="/">Home</a>
+  <a href = "/portfolio">Hey {{curruser}}</a>
+  <a href = "/portfolio/return">Returns</a>
+  <a href = "/logout">Logout</a>
+  <br><br>
+  <h3>Total Investment: {{total}} USD</h3>
+  {% if net_pl > 0 %}
+    <h3>Net Profit : {{net_pl}} USD</h3>
+  {% else %}
+    {% set loss = net_pl * -1 %}
+    <h3>Net Loss : {{loss}} USD</h3>
+  {% endif %}
+  <br><br>
+  <table class="table table-dark">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Date</th>
+        <th scope="col">Symbol</th>
+        <th scope="col">Category</th>
+        <th scope="col">Name</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Buying Price</th>
+        <th scope="col">Current Price</th>
+        <th scope="col">% Change</th>
+        <th scope="col">Currency</th>
+        <th scope="col">Make Money</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in invs %}
+        <tr>
+          <th scope="row">{{loop.index}}</th>
+          <td>{{dates[loop.index-1]}}</td>
+          <td>{{symbols[loop.index-1]}}</td>
+          <td>{{type[loop.index-1]}}</td>
+          <td><a href = "/{{type[loop.index-1]}}/{{i.asset}}/daily">{{i.asset}}</a></td>
+          <td>{{i.quantity}}</td>
+          <td>{{i.buy_price}}</td>
+          <td>{{prices[loop.index-1]}}</td>
+          <td>{{pchange[loop.index-1]}}</td>
+          <td>{{currency[loop.index-1]}}</td>
+          <td>
+            <form action="{{url_for('sell', id = i.id, price = prices[loop.index-1])}}" method="POST">
+              <div class="form-row align-items-center">
+                <div class="col-auto">
+                  <input type="number" name="quantity" class="form-control mb-2" placeholder="Quantity" min="1" max="{{i.quantity}}">
+                </div>
+                <div class="col-auto">
+                  <button type="submit" class="btn btn-primary mb-2">Sell</button>
+                </div>
+              </div>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
