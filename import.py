@@ -24,7 +24,9 @@ db.execute('''CREATE TABLE IF NOT EXISTS email (mail VARCHAR(64) NOT NULL, usern
 db.execute('''CREATE TABLE IF NOT EXISTS assets (id INTEGER PRIMARY KEY AUTOINCREMENT, type VARCHAR(40), name VARCHAR(50),
             currency VARCHAR(5), symbol VARCHAR(10), yf_symbol VARCHAR(15), yf_name VARCHAR(50), url VARCHAR(100))''')
 db.execute('''CREATE TABLE IF NOT EXISTS investment (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(16) NOT NULL,
-            asset VARCHAR(50), curr_price FLOAT, quantity INTEGER, date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
+            asset VARCHAR(50), buy_price FLOAT, quantity INTEGER, date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
+db.execute('''CREATE TABLE IF NOT EXISTS returns (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(16) NOT NULL,
+            asset VARCHAR(50), buy_price FLOAT, sell_price FLOAT, quantity INTEGER, date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
 db.commit()
 
 def insert_assets():
