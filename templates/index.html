@@ -7,6 +7,8 @@
 {% block body %}
   {% if loginstatus == 'True' %}
     <a href = "/portfolio">Hey {{curruser}}</a>
+    <a href = "/portfolio/investment">Investments</a>
+    <a href = "/portfolio/return">Returns</a>
     <a href = "/logout">Logout</a>
   {% else %}
     <a href = "/login">Login</a>
