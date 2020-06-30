@@ -6,8 +6,8 @@
 ## Key Structure
 With that said, we are going to create multiple **low risk and high return portfolios**. What makes them unique is that they demand very little capital because, as students, we are mostly living on our parent's money. Still, this portfolio is an excellent opportunity for all income classes.<br>
 We will analyze past data from various equities and other income yielding assets. This portfolio will comprise of:
-- Stocks mostly from mid-cap
-- Government and Corporate Bonds
+- Stocks (mostly from mid-cap)
+- Government & Corporate Bonds
 - Commodities
 - Forex Currencies
 
@@ -21,3 +21,15 @@ This will be a diversified portfolio and protect us from systematic and unsystem
 - In simpler words how much of user's money is allocated to which asset and how high or low it is
 - Profit/Loss statement for every month and cumulative Profit/Loss statement
 - All the changes in need will be shown in percentage scale
+
+## Tech Stack
+### Tools & Technologies
+- Flask(micro web framework of python)
+- PostgreSQL(Relational Database Management System)
+- Web Scraping
+
+### Languages
+- Python
+- HTML
+- CSS
+- Jinja2
