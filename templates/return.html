@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+  {{curruser}}'s Returns
+{% endblock %}
+
+{% block body %}
+  <a href="/">Home</a>
+  <a href = "/portfolio">Hey {{curruser}}</a>
+  <a href = "/portfolio/investment">Investments</a>
+  <a href = "/logout">Logout</a>
+  <br><br>
+  {% if net_pl > 0 %}
+    <h3>Net Profit : {{net_pl}} USD</h3>
+  {% else %}
+    {% set loss = net_pl * -1 %}
+    <h3>Net Loss : {{loss}} USD</h3>
+  {% endif %}
+  <br><br>
+  <table class="table table-dark">
+    <thead>
+      <tr>
+        <th scope="col">S. No.</th>
+        <th scope="col">Date</th>
+        <th scope="col">Symbol</th>
+        <th scope="col">Category</th>
+        <th scope="col">Name</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Buying Price</th>
+        <th scope="col">Selling Price</th>
+        <th scope="col">% Change</th>
+        <th scope="col">Currency</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rets %}
+        <tr>
+          <th scope="row">{{loop.index}}</th>
+          <td>{{dates[loop.index-1]}}</td>
+          <td>{{symbols[loop.index-1]}}</td>
+          <td>{{type[loop.index-1]}}</td>
+          <td><a href = "/{{type[loop.index-1]}}/{{r.asset}}/daily">{{r.asset}}</a></td>
+          <td>{{r.quantity}}</td>
+          <td>{{r.buy_price}}</td>
+          <td>{{r.sell_price}}</td>
+          <td>{{pchange[loop.index-1]}}</td>
+          <td>{{currency[loop.index-1]}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
