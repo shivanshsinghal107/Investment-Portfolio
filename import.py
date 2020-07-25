@@ -22,7 +22,7 @@ db.execute('''CREATE TABLE IF NOT EXISTS users (username VARCHAR(16) NOT NULL, p
 db.execute('''CREATE TABLE IF NOT EXISTS email (mail VARCHAR(64) NOT NULL, username VARCHAR(16) NOT NULL, FOREIGN KEY(username)
             REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, PRIMARY KEY(mail, username))''')
 db.execute('''CREATE TABLE IF NOT EXISTS assets (id INTEGER PRIMARY KEY AUTOINCREMENT, type VARCHAR(40), name VARCHAR(50),
-            currency VARCHAR(5), symbol VARCHAR(10), yf_symbol VARCHAR(15), yf_name VARCHAR(50), url VARCHAR(100))''')
+            currency VARCHAR(5), symbol VARCHAR(10), url VARCHAR(100))''')
 db.execute('''CREATE TABLE IF NOT EXISTS investment (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(16) NOT NULL,
             asset VARCHAR(50), buy_price FLOAT, quantity INTEGER, date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
 db.execute('''CREATE TABLE IF NOT EXISTS returns (id INTEGER PRIMARY KEY AUTOINCREMENT, username VARCHAR(16) NOT NULL,
@@ -30,31 +30,33 @@ db.execute('''CREATE TABLE IF NOT EXISTS returns (id INTEGER PRIMARY KEY AUTOINC
 db.commit()
 
 def insert_assets():
-    print("Inserting Commodities in the assets table")
-    type = "commodities"
-    f = open("commodities.csv")
+    #print("Inserting Commodities")
+    #type = "commodities"
+    #f = open("commodities.csv")
+    #reader = csv.reader(f)
+    #count = 0
+    #for symbol, name, url, currency in reader:
+    #    if count == 0:
+    #        count += 1
+    #    else:
+    #        db.execute("INSERT INTO assets (type, name, currency, symbol, url) VALUES (:type, :name, :currency, :symbol, :url)",
+    #       {"type": type, "name": name, "currency": currency, "symbol": symbol, "url": url})
+    #        print(f"{count}. {name} Inserted")
+    #        count += 1
+
+    #print()
+
+    print("Inserting Indian Stocks")
+    type = "stocks"
+    f = open("stocksymbols.csv")
     reader = csv.reader(f)
     count = 0
-    for symbol, name, url, yf_symbol, currency, yf_name in reader:
+    currency = "INR"
+    for symbol, name in reader:
         if count == 0:
             count += 1
         else:
-            db.execute("INSERT INTO assets (type, name, currency, symbol, yf_symbol, yf_name, url) VALUES (:type, :name, :currency, :symbol, :yf_symbol, :yf_name, :url)", {"type": type, "name": name, "currency": currency, "symbol": symbol, "yf_symbol": yf_symbol, "yf_name": yf_name, "url": url})
-            print(f"{count}. {name} Inserted")
-            count += 1
-
-    print()
-
-    print("Inserting Forex Currencies in the assets table")
-    type = "forex currencies"
-    f = open("forex_currencies.csv")
-    reader = csv.reader(f)
-    count = 0
-    for symbol, name, url, yf_symbol, currency, yf_name in reader:
-        if count == 0:
-            count += 1
-        else:
-            db.execute("INSERT INTO assets (type, name, currency, symbol, yf_symbol, yf_name, url) VALUES (:type, :name, :currency, :symbol, :yf_symbol, :yf_name, :url)", {"type": type, "name": name, "currency": currency, "symbol": symbol, "yf_symbol": yf_symbol, "yf_name": yf_name, "url": url})
+            db.execute("INSERT INTO assets (type, name, currency, symbol, url) VALUES (:type, :name, :currency, :symbol, :url)", {"type": type, "name": name, "currency": currency, "symbol": symbol, "url": "NA"})
             print(f"{count}. {name} Inserted")
             count += 1
     db.commit()
