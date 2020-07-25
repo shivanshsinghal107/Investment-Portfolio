@@ -5,16 +5,36 @@
 {% endblock %}
 
 {% block body %}
-  <a href="/">Home</a>
-  <a href = "/portfolio">Hey {{curruser}}</a>
-  <a href = "/portfolio/investment">Investments</a>
-  <a href = "/logout">Logout</a>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">
+      <img src="https://i.ibb.co/dQpq5m2/logo.png" border="0" width="30" height="30" class="d-inline-block align-top">
+    </a>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio">Portfolio</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/input">Optimize</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio/investment">Investments</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
   <br><br>
   {% if net_pl > 0 %}
-    <h3>Net Profit : {{net_pl}} USD</h3>
+    <h3>Net Profit : {{net_pl}} INR</h3>
   {% else %}
     {% set loss = net_pl * -1 %}
-    <h3>Net Loss : {{loss}} USD</h3>
+    <h3>Net Loss : {{loss}} INR</h3>
   {% endif %}
   <br><br>
   <table class="table table-dark">
@@ -39,7 +59,7 @@
           <td>{{dates[loop.index-1]}}</td>
           <td>{{symbols[loop.index-1]}}</td>
           <td>{{type[loop.index-1]}}</td>
-          <td><a href = "/{{type[loop.index-1]}}/{{r.asset}}/daily">{{r.asset}}</a></td>
+          <td><a href = "/{{type[loop.index-1]}}/{{r.asset}}/yearly">{{r.asset}}</a></td>
           <td>{{r.quantity}}</td>
           <td>{{r.buy_price}}</td>
           <td>{{r.sell_price}}</td>
