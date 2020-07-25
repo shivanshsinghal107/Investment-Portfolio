@@ -1,6 +1,7 @@
 import os
 import datetime
 import yfinance as yf
+import numpy as np
 import pandas as pd
 # these below two lines are for avoiding a runtime error
 import matplotlib
@@ -113,15 +114,13 @@ def logout():
 def get_assets(category):
     c = category.replace("+", " ")
     data = db.execute("SELECT * FROM assets WHERE type = :type", {"type": c}).fetchall()
+    syms = [d.symbol for d in data]
+    today = str(datetime.datetime.utcnow())[:10]
+    curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
     prices = []
     for d in data:
-        price = pdr.get_data_yahoo(d.yf_symbol, start = str(datetime.datetime.utcnow())[:10])
-        if len(price) > 1:
-            prices.append(round(price.Close[1], 2))
-        elif len(price) > 0:
-            prices.append(round(price.Close[0], 2))
-        else:
-            prices.append("NA")
+        price = round(curr_data.iloc[-1][d.symbol], 2)
+        prices.append(price)
     db.close()
     if session.get("logged_in"):
         return render_template("asset.html", loginstatus = "True", curruser = session["username"], category = c.title(), data = data, prices = prices)
@@ -165,41 +164,41 @@ def investments():
     if session.get("logged_in"):
         username = session["username"]
         invs = db.execute("SELECT * FROM investment WHERE username = :username ORDER BY date DESC", {"username": username}).fetchall()
-        print(len(invs))
-        dates = []
-        symbols = []
-        prices = []
-        currency = []
-        type = []
-        pchange = []
-        net_pl = 0
-        total = 0
-        for i in invs:
-            if i.quantity > 0:
+        if len(invs) > 0:
+            dates = []
+            prices = []
+            currency = []
+            type = []
+            pchange = []
+            net_pl = 0
+            total = 0
+            syms = []
+            today = str(datetime.datetime.utcnow())[:10]
+            for i in invs:
+                if i.quantity > 0:
+                    d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
+                    syms.append(d.symbol)
+                    currency.append(d.currency)
+                    type.append(d.type)
+            curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+            for i in invs:
                 d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
-                price = pdr.get_data_yahoo(d.yf_symbol, start = str(datetime.datetime.utcnow())[:10])
-                if len(price) > 1:
-                    p = round(price.Close[1], 2)
-                    prices.append(p)
-                    pchange.append(round((1 - i.buy_price/p)*100, 4))
-                    net_pl += (p - i.buy_price) * i.quantity
-                elif len(price) > 0:
-                    p = round(price.Close[0], 2)
-                    prices.append(p)
-                    pchange.append(round((1 - i.buy_price/p)*100, 4))
-                    net_pl += (p - i.buy_price) * i.quantity
-                else:
-                    prices.append("NA")
-                    pchange.append("NA")
-                da = i.date[:10].split("-")
-                date = f"{da[2]}-{da[1]}-{da[0]}"
-                dates.append(date)
-                symbols.append(d.symbol)
-                currency.append(d.currency)
-                type.append(d.type)
-                total += i.buy_price * i.quantity
-        db.close()
-        return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = symbols, prices = prices, currency = currency, type = type, pchange = pchange, net_pl = round(net_pl, 2), total = total)
+                price = round(curr_data.iloc[-1][d.symbol], 2)
+                prices.append(price)
+            for i in range(len(invs)):
+                if invs[i].quantity > 0:
+                    p = prices[i]
+                    pchange.append(round((1 - invs[i].buy_price/p)*100, 2))
+                    net_pl += (p - invs[i].buy_price) * invs[i].quantity
+                    da = invs[i].date[:10].split("-")
+                    date = f"{da[2]}-{da[1]}-{da[0]}"
+                    dates.append(date)
+                    total += invs[i].buy_price * invs[i].quantity
+            db.close()
+            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, currency = currency, type = type, pchange = pchange, net_pl = int(net_pl), total = int(total))
+        else:
+            db.close()
+            return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], currency = [], type = [], pchange = [], net_pl = 0, total = 0)
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
 
@@ -217,7 +216,7 @@ def returns():
         net_pl = 0
         for r in rets:
             d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": r.asset}).fetchall()[0]
-            pchange.append(round((1 - r.buy_price/r.sell_price)*100, 4))
+            pchange.append(round((1 - r.buy_price/r.sell_price)*100, 2))
             da = r.date[:10].split("-")
             date = f"{da[2]}-{da[1]}-{da[0]}"
             dates.append(date)
@@ -226,7 +225,7 @@ def returns():
             type.append(d.type)
             net_pl += r.quantity * (r.sell_price - r.buy_price)
         db.close()
-        return render_template("return.html", curruser = username, dates = dates, rets = rets, symbols = symbols, currency = currency, type = type, pchange = pchange, net_pl = round(net_pl, 2))
+        return render_template("return.html", curruser = username, dates = dates, rets = rets, symbols = symbols, currency = currency, type = type, pchange = pchange, net_pl = int(net_pl))
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
 
@@ -243,56 +242,62 @@ def portfolio():
             category.append(a.type)
             if i.asset not in assets:
                 assets.append(i.asset)
-                symbols.append(a.yf_symbol)
+                symbols.append(a.symbol)
         fig = plt.figure(figsize = (12, 6))
         d = dict(Counter(category))
-        d['goverment bonds'] = 3
-        d['corporate bonds'] = 2
-        d['mid-cap stocks'] = 2
+        #d['goverment bonds'] = 3
+        #d['corporate bonds'] = 2
+        #d['mid-cap stocks'] = 2
         plt.pie(d.values(), labels = d.keys(), autopct = '%1.1f%%')
         img = BytesIO()
         fig.savefig(img, format = 'png', bbox_inches = 'tight')
         img.seek(0)
         encoded_pc = b64encode(img.getvalue())
 
-        fig1 = plt.figure(figsize = (12, 6))
+        curr_data = pdr.get_data_yahoo(symbols, start = "2020-01-01")['Adj Close']
+        stock_graphs = []
         count = 0
-        for s in symbols:
-            data = pdr.get_data_yahoo(s, start = '2020-01-01')
-            plt.plot((data['Close'] / data['Close'].iloc[0] * 100), label = assets[count])
+        for c in curr_data.columns:
+            fig1 = plt.figure(figsize = (12, 6))
+            plt.plot(curr_data[c], c = np.random.rand(3,))
+            plt.xlabel('DATE')
+            plt.ylabel('PRICE')
+            plt.title(assets[count].upper())
+            #plt.fill_between(curr_data.index, curr_data[c])
+            plt.grid()
+            fig1.patch.set_edgecolor('white')
+            fig1.patch.set_linewidth('1')
+            img1 = BytesIO()
+            fig1.savefig(img1, format = 'png', bbox_inches = 'tight')
+            img1.seek(0)
+            encoded_graph = b64encode(img1.getvalue())
+            stock_graphs.append(encoded_graph.decode('utf-8'))
             count += 1
-        plt.xlabel('YEAR')
-        plt.ylabel('PRICE')
-        plt.legend()
-        plt.grid()
-        img1 = BytesIO()
-        fig1.savefig(img1, format = 'png', bbox_inches = 'tight')
-        img1.seek(0)
-        encoded_graph = b64encode(img1.getvalue())
         db.close()
-        return render_template("portfolio.html", curruser = username, pie_chart = encoded_pc.decode('utf-8'), graph = encoded_graph.decode('utf-8'))
+        return render_template("portfolio.html", curruser = username, pie_chart = encoded_pc.decode('utf-8'), stock_graphs = stock_graphs)
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
 
 @app.route("/<category>/<asset>/<show>", methods = ['GET', 'POST'])
 def display_asset(category, asset, show):
+    print(asset)
     a = db.execute("SELECT * FROM assets WHERE name = :name", {"name": asset}).fetchall()[0]
-    today = str(datetime.datetime.utcnow())
+    today = str(datetime.datetime.utcnow())[:10]
     month = today[5:7]
     if show == 'daily':
-        if int(month) <= 10:
-            m = '0' + str(int(month) - 1)
+        if int(month) <= 3:
+            m = str(int(month) - 3 + 12)
         else:
-            m = str(int(month) - 1)
-        last_date = today[:5] + m + '-' + today[8:10]
+            m = '0' + str(int(month) - 3)
+        last_date = today[:5] + m + '-' + today[8:]
     elif show == 'monthly':
-        last_date = '2020-01-01'
+        last_date = str(int(today[:4])-1) + today[4:]
     else:
-        last_date = '2015' + today[4:10]
-    data = pdr.get_data_yahoo(a.yf_symbol, start = last_date)
-    fig = plt.figure(figsize = (10, 5))
-    plt.plot((data['Close'] / data['Close'].iloc[0] * 100))
-    plt.fill_between(data.index, data.Close)
+        last_date = str(int(today[:4])-5) + today[4:]
+    data = pdr.get_data_yahoo(a.symbol, start = last_date)
+    fig = plt.figure(figsize = (12, 6))
+    plt.plot(data['Adj Close'])
+    plt.fill_between(data.index, data['Adj Close'])
     plt.xlabel('DATE')
     plt.ylabel('PRICE')
     plt.xticks(rotation = 45)
@@ -300,5 +305,218 @@ def display_asset(category, asset, show):
     fig.savefig(img, format = 'png', bbox_inches = 'tight')
     img.seek(0)
     chart = b64encode(img.getvalue())
-    curr_price = round(data.Close[0], 3)
+    curr_price = round(data.Close[-1], 2)
+    db.close()
     return render_template("stock.html", asset = asset, category = category, symbol = a.symbol, curr_price = curr_price, currency = a.currency, chart = chart.decode('utf-8'), show = show.title())
+
+@app.route("/input", methods = ['GET', 'POST'])
+def take_input():
+    if session.get("logged_in"):
+        username = session["username"]
+        if request.method == 'POST':
+            money = request.form.get("money")
+            stocks = request.form.getlist("stocks")
+            if len(stocks) > 5:
+                stock_str = ""
+                for s in stocks:
+                    stock_str += s + ", "
+                print(stock_str)
+                return redirect(f"http://127.0.0.1:5000/optimization/{stock_str}/{money}")
+            else:
+                return "<script>alert('Select at least 5 stocks'); window.location = window.history.back();</script>"
+        else:
+            df = pd.read_csv("stocksymbols.csv")
+            syms = list(df['Symbol'])
+            return render_template("input.html", curruser = username, syms = syms)
+    else:
+        return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+
+@app.route("/optimization/<stocks>/<money>", methods = ['GET', 'POST'])
+def optimization(stocks, money):
+    if session.get("logged_in"):
+        username = session["username"]
+        syms = stocks.split(", ")[:-1]
+        k = len(syms)
+        stock_data = pdr.get_data_yahoo(syms, start = "2016-04-01", end = "2019-04-01")['Adj Close']
+        returns = stock_data.pct_change()
+        #mean_daily_returns = np.array(returns.mean()).reshape(-1, 1)
+        cov = returns.cov()
+        stds = np.array(returns.std()).reshape(-1, 1)
+        product_std = np.dot(stds, stds.T)
+        cov_mat = np.array(cov)
+        corr = cov_mat / product_std
+        ret = (stock_data.iloc[-1]/stock_data.iloc[0] - 1)
+        annual_return = np.array(ret).reshape(-1, 1)
+
+        # max sharpe ratio
+        risk_free_rate = 0.04
+        best_wts = maximize_sharpe_ratio(annual_return, risk_free_rate, cov, k)
+        sharpe_wts = []
+        sharpe_per_wts = []
+        for i in range(len(best_wts)):
+            wt = round(best_wts[i, 0], 2)
+            sharpe_wts.append(wt)
+            sharpe_per_wts.append(str(int(wt*100)) + " %")
+
+        # minimum portfolio variance
+        best_wts = minimize_portfolio_variance(corr, stds, annual_return, k)
+        var_wts = []
+        var_per_wts = []
+        for i in range(len(best_wts)):
+            wt = round(best_wts[i, 0], 2)
+            var_wts.append(wt)
+            var_per_wts.append(str(int(wt*100)) + " %")
+
+        # monthly, quarterly, half-yearly, yearly
+        min_port_var = 1.42
+        max_port_var = 1.47
+        best_wts = maximize_annual_return(stock_data, stds, corr, annual_return, min_port_var, max_port_var, k)
+        max_return_wts = []
+        max_return_per_wts = []
+        for i in range(len(best_wts)):
+            wt = round(best_wts[i, 0], 2)
+            max_return_wts.append(wt)
+            max_return_per_wts.append(str(int(wt*100)) + " %")
+
+        start = str(datetime.datetime.utcnow())[:10]
+        curr_data = pdr.get_data_yahoo(syms, start = start)['Close']
+        # python list comprehension
+        curr_price = [round(price, 2) for price in list(curr_data.iloc[0])]
+        sharpe_money = [round(w*int(money), 2) for w in sharpe_wts]
+        sharpe_units = [int(mon / price) for mon, price in zip(sharpe_money, curr_price)]
+        var_money = [round(w*int(money), 2) for w in var_wts]
+        var_units = [int(mon / price) for mon, price in zip(var_money, curr_price)]
+        max_return_money = [round(w*int(money), 2) for w in max_return_wts]
+        max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
+        return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns))
+    else:
+        return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+
+def maximize_sharpe_ratio(annual_return, risk_free_rate, cov, k):
+    srs = []
+    portfolio_stds = []
+    rand_wts = []
+    portfolio_returns = []
+    for i in range(0, 20000):
+        random_weights = np.random.dirichlet(np.ones(k), size = 1).T
+        rand_wts.append(random_weights)
+        # portolfio return
+        portfolio_return = np.sum(annual_return * random_weights)
+        portfolio_returns.append(portfolio_return)
+        # portfolio volatility
+        portfolio_std = np.sqrt(np.dot(random_weights.T, np.dot(cov, random_weights))) * np.sqrt(252)
+        portfolio_stds.append(portfolio_std)
+        # sharpe ratio
+        sharpe_ratio = (portfolio_return - risk_free_rate) / portfolio_std
+        srs.append(sharpe_ratio)
+    max_index = srs.index(max(srs))
+    best_wts = rand_wts[max_index]
+    #max_sr = srs[max_index]
+    #portfolio_sd = portfolio_stds[max_index]
+    #return_for_max_sr = portfolio_returns[max_index]
+
+    return best_wts
+
+def minimize_portfolio_variance(corr, stds, annual_return, k):
+    port_vars = []
+    rand_wts = []
+    for i in range(0, 10000):
+        random_weights = np.random.dirichlet(np.ones(k), size = 1).T
+        rand_wts.append(random_weights)
+        random_weighted_sd = stds * random_weights
+        portfolio_var = np.sqrt(np.sum(np.dot(random_weighted_sd.T, np.dot(corr, random_weighted_sd))))*100
+        port_vars.append(portfolio_var)
+    min_index = port_vars.index(min(port_vars))
+    best_wts = rand_wts[min_index]
+    #min_var = port_vars[min_index]
+    #return_for_min_pr = np.sum(annual_return * best_wts)
+
+    return best_wts
+
+def maximize_annual_return(e, stds, corr, annual_return, min_port_var, max_port_var, k):
+    monthly = 0
+    quarterly = 0
+    half_yearly = 0
+    yearly = 0
+    # monthly
+    start = "2016-04-01"
+    for i in range(36):
+        end = start[:5]
+        month = int(start[5:7]) + 1
+        if month <= 9:
+            end += '0' + str(month) + start[7:]
+        elif month > 12:
+            end = str(int(start[:4]) + 1) + '-01-01'
+        else:
+            end += str(month) + start[7:]
+        sliced_data = e.loc[(e.index >= start) & (e.index <= end)]
+        monthly += (sliced_data.iloc[-1]/sliced_data.iloc[0] - 1)
+        start = end
+    # quarterly
+    start = "2016-04-01"
+    for i in range(12):
+        end = start[:5]
+        month = int(start[5:7]) + 3
+        if month <= 9:
+            end += '0' + str(month) + start[7:]
+        elif month == 13:
+            end = str(int(start[:4]) + 1) + '-01-01'
+        else:
+            end += str(month) + start[7:]
+        sliced_data = e.loc[(e.index >= start) & (e.index <= end)]
+        quarterly += (sliced_data.iloc[-1]/sliced_data.iloc[0] - 1)
+        start = end
+    # half-yearly
+    start = "2016-04-01"
+    for i in range(6):
+        end = start[:5]
+        month = int(start[5:7]) + 6
+        if month == 16:
+            end = str(int(start[:4]) + 1) + '-04-01'
+        else:
+            end += str(month) + start[7:]
+        sliced_data = e.loc[(e.index >= start) & (e.index <= end)]
+        half_yearly += (sliced_data.iloc[-1]/sliced_data.iloc[0] - 1)
+        start = end
+    # yearly
+    start = "2016-04-01"
+    for i in range(3):
+        end = str(int(start[:4]) + 1) + start[4:]
+        sliced_data = e.loc[(e.index >= start) & (e.index <= end)]
+        yearly += (sliced_data.iloc[-1]/sliced_data.iloc[0] - 1)
+        start = end
+
+    avgs = [list(monthly*100/36), list(quarterly*100/12), list(half_yearly*100/6), list(yearly*100/3)]
+
+    best_wts_for_avgs = []
+    annual_returns_for_avgs = []
+    port_vars_for_avgs = []
+    for avg in avgs:
+        port_vars = []
+        returns = []
+        rand_wts = []
+        for i in range(0, 10000):
+            random_weights = np.random.dirichlet(np.ones(k), size = 1).T
+            random_weighted_sd = stds * random_weights
+            portfolio_var = np.sqrt(np.sum(np.dot(random_weighted_sd.T, np.dot(corr, random_weighted_sd))))*100
+            if (portfolio_var >= min_port_var) & (portfolio_var <= max_port_var):
+                port_vars.append(portfolio_var)
+                rand_wts.append(random_weights)
+                total_return = np.sum(avg * random_weights.T)
+                returns.append(total_return)
+        max_index = returns.index(max(returns))
+        max_return = returns[max_index]
+        best_wts = rand_wts[max_index]
+        #min_var = port_vars[max_index]
+
+        best_wts_for_avgs.append(best_wts)
+        #port_vars_for_avgs.append(min_var)
+        annual_ret = np.sum(annual_return * best_wts)
+        annual_returns_for_avgs.append(annual_ret)
+
+    max_index = annual_returns_for_avgs.index(max(annual_returns_for_avgs))
+    bestest_wts = best_wts_for_avgs[max_index]
+    #maximum_return = annual_returns_for_avgs[max_index]
+    #miniest_var = port_vars_for_avgs[max_index]
+
+    return bestest_wts
