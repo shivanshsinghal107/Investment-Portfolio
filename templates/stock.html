@@ -5,21 +5,58 @@
 {% endblock %}
 
 {% block body %}
-  <div align = "center">
-    <a href="/">Home</a>
-    {% if show == 'Daily' %}
-      <a href="/{{category}}/{{asset}}/monthly">Monthly</a>
-      <a href="/{{category}}/{{asset}}/yearly">Yearly</a>
-    {% endif %}
-    {% if show == 'Monthly' %}
-      <a href="/{{category}}/{{asset}}/daily">Daily</a>
-      <a href="/{{category}}/{{asset}}/yearly">Yearly</a>
-    {% endif %}
-    {% if show == 'Yearly' %}
-      <a href="/{{category}}/{{asset}}/daily">Daily</a>
-      <a href="/{{category}}/{{asset}}/monthly">Monthly</a>
-    {% endif %}
-  </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">
+      <img src="https://i.ibb.co/dQpq5m2/logo.png" border="0" width="30" height="30" class="d-inline-block align-top">
+    </a>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio">Portfolio</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/input">Optimize</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio/investment">Investments</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio/return">Returns</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+          {% if show == 'Daily' %}
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/monthly">Monthly</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/yearly">Yearly</a>
+            </li>
+          {% endif %}
+          {% if show == 'Monthly' %}
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/daily">Daily</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/yearly">Yearly</a>
+            </li>
+          {% endif %}
+          {% if show == 'Yearly' %}
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/daily">Daily</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/monthly">Monthly</a>
+            </li>
+          {% endif %}
+      </ul>
+    </div>
+  </nav>
+  <br>
   <h3 align = "center">{{symbol}} ({{category}})</h3>
   <h4 align = "center">{{show}}</h4>
   <div align = "center">
