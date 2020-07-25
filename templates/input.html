@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+  Fill the following details
+{% endblock %}
+
+{% block body %}
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">
+      <img src="https://i.ibb.co/dQpq5m2/logo.png" border="0" width="30" height="30" class="d-inline-block align-top">
+    </a>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio">Portfolio</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio/investment">Investments</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio/return">Returns</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <br><br>
+  <form method="POST">
+    <input type="number" name="money" class="form-control mb-2" placeholder="Money" min="1000" value="1000">
+    {% for s in syms %}
+      <input type="checkbox" name="stocks" value="{{s}}">
+      <label for="stocks">{{s}}</label><br>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary mb-2">Optimize</button>
+  </form>
+{% endblock %}
