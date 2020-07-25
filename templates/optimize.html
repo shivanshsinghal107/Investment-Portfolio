@@ -1,0 +1,129 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+  Portfolio Optimization
+{% endblock %}
+
+{% block body %}
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">
+      <img src="https://i.ibb.co/dQpq5m2/logo.png" border="0" width="30" height="30" class="d-inline-block align-top">
+    </a>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio">Portfolio</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio/investment">Investments</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/portfolio/return">Returns</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <br><br>
+  <h2>Suggested Porfolio Optimizations</h2>
+  <h3>Maximum Return | Moderate Risk</h3>
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          {% for sym in syms %}
+            <th scope="col">{{sym}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Weightage</td>
+          {% for wt in sharpe_wts %}
+            <td>{{wt}}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Price(INR)</td>
+          {% for price in curr_price %}
+            <td>{{price}}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Quantity</td>
+          {% for unit in sharpe_units %}
+            <td>{{unit}}</td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+  <br>
+  <h3>Moderate Return | Minimum Risk</h3>
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          {% for sym in syms %}
+            <th scope="col">{{sym}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Weightage</td>
+          {% for wt in var_wts %}
+            <td>{{wt}}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Price(INR)</td>
+          {% for price in curr_price %}
+            <td>{{price}}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Quantity</td>
+          {% for unit in var_units %}
+            <td>{{unit}}</td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+  <br>
+  <h3>Highly Diversified</h3>
+    <table class="table table-dark">
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          {% for sym in syms %}
+            <th scope="col">{{sym}}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Weightage</td>
+          {% for wt in max_return_wts %}
+            <td>{{wt}}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Price(INR)</td>
+          {% for price in curr_price %}
+            <td>{{price}}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td>Quantity</td>
+          {% for unit in max_return_units %}
+            <td>{{unit}}</td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+{% endblock %}
