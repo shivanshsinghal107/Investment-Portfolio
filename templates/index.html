@@ -27,16 +27,16 @@
           <li class="nav-item active">
             <a class="nav-link" href="/logout">Logout</a>
           </li>
-          <!--<li class="nav-item dropdown">
+          <li class="nav-item dropdown active">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Dropdown link
+              More
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
+              <a class="dropdown-item" href="/tnc">Terms & Conditions</a>
+              <a class="dropdown-item" href="/about">About Us</a>
+              <a class="dropdown-item" href="/feedback">Give Feedback</a>
             </div>
-          </li>-->
+          </li>
         </ul>
       </div>
     </nav>
@@ -56,6 +56,15 @@
           <li class="nav-item active">
             <a class="nav-link" href="/login">Login</a>
           </li>
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              More
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="/tnc">Terms & Conditions</a>
+              <a class="dropdown-item" href="/about">About Us</a>
+            </div>
+          </li>
         </ul>
       </div>
     </nav>
@@ -63,11 +72,9 @@
   <br><br>
   <form method="POST">
     <select class="form-control" name="asset">
-      <option value="Dividend Yielding Equity" selected>Dividend Yielding Equity</option>
-      <option value="Stocks">Stocks</option>
-      <option value="Government and Corporate Bonds">Government and Corporate Bonds</option>
-      <option value="Commodities">Commodities</option>
-      <option value="Forex Currencies">Forex Currencies</option>
+      <option value="small-cap">Small Cap Stocks</option>
+      <option value="mid-cap">Mid Cap Stocks</option>
+      <option value="large-cap">Large Cap Stocks</option>
     </select>
     <br>
     <button type="submit" class="btn btn-primary">Proceed</button>

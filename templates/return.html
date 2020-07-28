@@ -26,6 +26,16 @@
         <li class="nav-item active">
           <a class="nav-link" href="/logout">Logout</a>
         </li>
+        <li class="nav-item dropdown active">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            More
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="/tnc">Terms & Conditions</a>
+            <a class="dropdown-item" href="/about">About Us</a>
+            <a class="dropdown-item" href="/feedback">Give Feedback</a>
+          </div>
+        </li>
       </ul>
     </div>
   </nav>
@@ -41,7 +51,8 @@
     <thead>
       <tr>
         <th scope="col">S. No.</th>
-        <th scope="col">Date</th>
+        <th scope="col">Buy Date</th>
+        <th scope="col">Sell Date</th>
         <th scope="col">Symbol</th>
         <th scope="col">Category</th>
         <th scope="col">Name</th>
@@ -56,7 +67,8 @@
       {% for r in rets %}
         <tr>
           <th scope="row">{{loop.index}}</th>
-          <td>{{dates[loop.index-1]}}</td>
+          <td scope="row">{{buy_dates[loop.index-1]}}</td>
+          <td>{{sell_dates[loop.index-1]}}</td>
           <td>{{symbols[loop.index-1]}}</td>
           <td>{{type[loop.index-1]}}</td>
           <td><a href = "/{{type[loop.index-1]}}/{{r.asset}}/yearly">{{r.asset}}</a></td>

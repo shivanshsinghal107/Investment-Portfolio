@@ -26,6 +26,16 @@
         <li class="nav-item active">
           <a class="nav-link" href="/logout">Logout</a>
         </li>
+        <li class="nav-item dropdown active">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            More
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="/tnc">Terms & Conditions</a>
+            <a class="dropdown-item" href="/about">About Us</a>
+            <a class="dropdown-item" href="/feedback">Give Feedback</a>
+          </div>
+        </li>
       </ul>
     </div>
   </nav>
@@ -50,6 +60,9 @@
         <th scope="col">Buying Price</th>
         <th scope="col">Current Price</th>
         <th scope="col">% Change</th>
+        <th scope="col">Beta</th>
+        <th scope="col">CAGR</th>
+        <th scope="col">ROI</th>
         <th scope="col">Currency</th>
         <th scope="col">Make Money</th>
       </tr>
@@ -66,6 +79,9 @@
           <td>{{i.buy_price}}</td>
           <td>{{prices[loop.index-1]}}</td>
           <td>{{pchange[loop.index-1]}}</td>
+          <td>{{betas[loop.index-1]}}</td>
+          <td>{{cagrs[loop.index-1]}}</td>
+          <td>{{rois[loop.index-1]}}</td>
           <td>{{currency[loop.index-1]}}</td>
           <td>
             <form action="{{url_for('sell', id = i.id, price = prices[loop.index-1])}}" method="POST">
