@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+  {{info}}
+{% endblock %}
+
+{% block body %}
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">
+      <img src="https://i.ibb.co/dQpq5m2/logo.png" border="0" width="30" height="30" class="d-inline-block align-top">
+    </a>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        {% if info == 'About Us' %}
+          <li class="nav-item active">
+            <a class="nav-link" href="/tnc">Terms & Conditions</a>
+          </li>
+        {% else %}
+          <li class="nav-item active">
+            <a class="nav-link" href="/about">About Us</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+  <br>
+{% endblock %}
