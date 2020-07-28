@@ -1,4 +1,5 @@
 import os
+import smtplib
 import datetime
 import yfinance as yf
 import numpy as np
@@ -18,6 +19,8 @@ from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+from data import make_tables, insert_assets
+
 app = Flask(__name__)
 
 # Configure session to use filesystem
@@ -28,6 +31,12 @@ Session(app)
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL", "sqlite:///database.db"))
 db = scoped_session(sessionmaker(bind=engine))
+
+make_tables()
+table_data = db.execute("SELECT * FROM assets").fetchall()
+db.close()
+if len(table_data) <= 0:
+    insert_assets()
 
 yf.pdr_override()
 
@@ -47,6 +56,22 @@ plt.rcParams.update({
     "savefig.facecolor": "black",
     "savefig.edgecolor": "black"})
 
+def send_mail(email, subject, body):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    # EHLO means ESMTP - Extended Simple Mail Transfer Protocol
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
+
+    server.login('help.quantizers@gmail.com', 'gdnrkmiiutvcvvol') # see the video tutorial from README.md file
+
+    msg = f"Subject: {subject}\n\n{body}"
+
+    server.sendmail('help.quantizers@gmail.com', email, msg)
+    print("HEY, EMAIL HAS BEEN SENT!")
+
+    server.quit()
+
 @app.route("/", methods = ['GET', 'POST'])
 def index():
     if request.method == 'GET':
@@ -55,7 +80,7 @@ def index():
         else:
             return render_template("index.html", loginstatus = "False")
     else:
-        category = request.form.get("asset").lower().replace(" ", "+")
+        category = request.form.get("asset").lower().replace("-", "+")
         return redirect(f"/{category}")
 
 @app.route("/register", methods = ['GET', 'POST'])
@@ -68,6 +93,10 @@ def register():
             password = request.form.get("password")
             email = request.form.get("email")
             date = datetime.datetime.utcnow()
+            data = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchall()
+            if len(data) > 0:
+                db.close()
+                return "<script>alert('Username already exists, choose another'); window.location = window.history.back();</script>"
             db.execute("INSERT INTO users (username, password, join_date) VALUES (:username, :password, :join_date)",
                         {"username": username, "password": password, "join_date": date})
             db.execute("INSERT INTO email (mail, username) VALUES (:mail, :username)", {"mail": email, "username": username})
@@ -75,7 +104,10 @@ def register():
             session["logged_in"] = True
             session["username"] = username
             db.close()
-            return "<script>alert('Registered Successfully');window.location = 'http://127.0.0.1:5000/';</script>"
+            subject = 'Thanks for registering.'
+            body = "Hope you'll have a good experience with QUANTIZERS"
+            send_mail(email, subject, body)
+            return "<script>alert('Registered Successfully, check your mail');window.location = 'http://127.0.0.1:5000/';</script>"
         else:
             return render_template("register.html")
 
@@ -110,9 +142,31 @@ def logout():
     print(session.keys())
     return redirect("http://127.0.0.1:5000")
 
+@app.route("/tnc")
+def terms_and_cond():
+    return render_template("info.html", info = 'Terms & Conditions')
+
+@app.route("/about")
+def about_us():
+    return render_template("info.html", info = 'About Us')
+
+@app.route("/feedback", methods = ['GET', 'POST'])
+def feedback():
+    if session.get("logged_in"):
+        if request.method == 'GET':
+            return render_template("feedback.html")
+        else:
+            username = session["username"]
+            feedback = request.form.get("feedback")
+            subject = f'Feedback from {session["username"]}'
+            send_mail("help.quantizers@gmail.com", subject, feedback)
+            return "<script>alert('Feedback submitted successfully'); window.location = 'http://127.0.0.1:5000/';</script>"
+    else:
+        return "<script>alert('Please login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+
 @app.route("/<category>", methods = ['GET', 'POST'])
 def get_assets(category):
-    c = category.replace("+", " ")
+    c = category.replace("+", "-")
     data = db.execute("SELECT * FROM assets WHERE type = :type", {"type": c}).fetchall()
     syms = [d.symbol for d in data]
     today = str(datetime.datetime.utcnow())[:10]
@@ -149,7 +203,7 @@ def sell(id, price):
         username = session["username"]
         date = str(datetime.datetime.utcnow())
         inv = db.execute("SELECT * FROM investment WHERE id = :id", {"id": id}).fetchall()[0]
-        db.execute("INSERT INTO returns (username, asset, buy_price, sell_price, quantity, date) VALUES (:username, :asset, :buy_price, :sell_price, :quantity, :date)", {"username": username, "asset": inv.asset, "buy_price": inv.buy_price, "sell_price": price, "quantity": quantity, "date": date})
+        db.execute("INSERT INTO returns (username, asset, buy_price, sell_price, quantity, buy_date, sell_date) VALUES (:username, :asset, :buy_price, :sell_price, :quantity, :buy_date, :sell_date)", {"username": username, "asset": inv.asset, "buy_price": inv.buy_price, "sell_price": price, "quantity": quantity, "buy_date": inv.date, "sell_date": date})
         if quantity < inv.quantity:
             db.execute("UPDATE investment SET quantity = :quantity WHERE id = :id", {"quantity": (inv.quantity-quantity), "id": id})
         print(f"Sold {inv.asset}")
@@ -173,17 +227,38 @@ def investments():
             net_pl = 0
             total = 0
             syms = []
+            betas = []
+            cagrs = []
+            rois = []
             today = str(datetime.datetime.utcnow())[:10]
+            start = str(int(today[:4]) - 5) + today[4:]
             for i in invs:
                 if i.quantity > 0:
                     d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
                     syms.append(d.symbol)
                     currency.append(d.currency)
                     type.append(d.type)
-            curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+            syms.append('^NSEI')
+            syms.append('^BSESN')
+            curr_data = pdr.get_data_yahoo(syms, start = start)['Close']
             for i in invs:
                 d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
                 price = round(curr_data.iloc[-1][d.symbol], 2)
+                cagr = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol])**(1/3) - 1)*100, 2)
+                roi = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol]) - 1)*100, 2)
+                if d.symbol[-2:] == 'BO':
+                    index = '^BSESN'
+                else:
+                    index = '^NSEI'
+                data = curr_data[[d.symbol, index]]
+                returns = data.pct_change()
+                cov = returns.cov()
+                covar = cov[syms[i]].iloc[1]
+                var = cov[index].iloc[1]
+                beta = round(covar/var, 2)
+                betas.append(beta)
+                rois.append(f"{roi}%")
+                cagrs.append(cagr)
                 prices.append(price)
             for i in range(len(invs)):
                 if invs[i].quantity > 0:
@@ -195,10 +270,10 @@ def investments():
                     dates.append(date)
                     total += invs[i].buy_price * invs[i].quantity
             db.close()
-            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, currency = currency, type = type, pchange = pchange, net_pl = int(net_pl), total = int(total))
+            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, currency = currency, type = type, pchange = pchange, betas = betas, cagrs = cagrs, rois = rois, net_pl = int(net_pl), total = int(total))
         else:
             db.close()
-            return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], currency = [], type = [], pchange = [], net_pl = 0, total = 0)
+            return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], currency = [], type = [], pchange = [], betas = betas, cagrs = cagrs, rois = rois, net_pl = 0, total = 0)
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
 
@@ -208,7 +283,8 @@ def returns():
         username = session["username"]
         rets = db.execute("SELECT * FROM returns WHERE username = :username ORDER BY date DESC", {"username": username}).fetchall()
         print(len(rets))
-        dates = []
+        buy_dates = []
+        sell_dates = []
         symbols = []
         currency = []
         type = []
@@ -217,15 +293,18 @@ def returns():
         for r in rets:
             d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": r.asset}).fetchall()[0]
             pchange.append(round((1 - r.buy_price/r.sell_price)*100, 2))
-            da = r.date[:10].split("-")
+            da = r.buy_date[:10].split("-")
             date = f"{da[2]}-{da[1]}-{da[0]}"
-            dates.append(date)
+            buy_dates.append(date)
+            da = r.sell_date[:10].split("-")
+            date = f"{da[2]}-{da[1]}-{da[0]}"
+            sell_dates.append(date)
             symbols.append(d.symbol)
             currency.append(d.currency)
             type.append(d.type)
             net_pl += r.quantity * (r.sell_price - r.buy_price)
         db.close()
-        return render_template("return.html", curruser = username, dates = dates, rets = rets, symbols = symbols, currency = currency, type = type, pchange = pchange, net_pl = int(net_pl))
+        return render_template("return.html", curruser = username, buy_dates = buy_dates, sell_dates = sell_dates, rets = rets, symbols = symbols, currency = currency, type = type, pchange = pchange, net_pl = int(net_pl))
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
 
@@ -234,47 +313,49 @@ def portfolio():
     if session.get("logged_in"):
         username = session["username"]
         invs = db.execute("SELECT * FROM investment WHERE username = :username", {"username": username}).fetchall()
-        category = []
-        assets = []
-        symbols = []
-        for i in invs:
-            a = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
-            category.append(a.type)
-            if i.asset not in assets:
-                assets.append(i.asset)
-                symbols.append(a.symbol)
-        fig = plt.figure(figsize = (12, 6))
-        d = dict(Counter(category))
-        #d['goverment bonds'] = 3
-        #d['corporate bonds'] = 2
-        #d['mid-cap stocks'] = 2
-        plt.pie(d.values(), labels = d.keys(), autopct = '%1.1f%%')
-        img = BytesIO()
-        fig.savefig(img, format = 'png', bbox_inches = 'tight')
-        img.seek(0)
-        encoded_pc = b64encode(img.getvalue())
+        if len(invs) > 0:
+            category = []
+            assets = []
+            symbols = []
+            for i in invs:
+                a = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
+                category.append(a.type)
+                if i.asset not in assets:
+                    assets.append(i.asset)
+                    symbols.append(a.symbol)
+            fig = plt.figure(figsize = (12, 6))
+            d = dict(Counter(category))
+            #d['goverment bonds'] = 3
+            #d['corporate bonds'] = 2
+            #d['mid-cap stocks'] = 2
+            plt.pie(d.values(), labels = d.keys(), autopct = '%1.1f%%')
+            img = BytesIO()
+            fig.savefig(img, format = 'png', bbox_inches = 'tight')
+            img.seek(0)
+            encoded_pc = b64encode(img.getvalue())
 
-        curr_data = pdr.get_data_yahoo(symbols, start = "2020-01-01")['Adj Close']
-        stock_graphs = []
-        count = 0
-        for c in curr_data.columns:
-            fig1 = plt.figure(figsize = (12, 6))
-            plt.plot(curr_data[c], c = np.random.rand(3,))
-            plt.xlabel('DATE')
-            plt.ylabel('PRICE')
-            plt.title(assets[count].upper())
-            #plt.fill_between(curr_data.index, curr_data[c])
-            plt.grid()
-            fig1.patch.set_edgecolor('white')
-            fig1.patch.set_linewidth('1')
-            img1 = BytesIO()
-            fig1.savefig(img1, format = 'png', bbox_inches = 'tight')
-            img1.seek(0)
-            encoded_graph = b64encode(img1.getvalue())
-            stock_graphs.append(encoded_graph.decode('utf-8'))
-            count += 1
-        db.close()
-        return render_template("portfolio.html", curruser = username, pie_chart = encoded_pc.decode('utf-8'), stock_graphs = stock_graphs)
+            curr_data = pdr.get_data_yahoo(symbols, start = "2020-01-01")['Adj Close']
+            stock_graphs = []
+            count = 0
+            for c in curr_data.columns:
+                fig1 = plt.figure(figsize = (12, 6))
+                plt.plot(curr_data[c], c = np.random.rand(3,))
+                plt.xlabel('DATE')
+                plt.ylabel('PRICE')
+                plt.title(assets[count].upper())
+                #plt.fill_between(curr_data.index, curr_data[c])
+                plt.grid()
+                img1 = BytesIO()
+                fig1.savefig(img1, format = 'png', bbox_inches = 'tight')
+                img1.seek(0)
+                encoded_graph = b64encode(img1.getvalue())
+                stock_graphs.append(encoded_graph.decode('utf-8'))
+                count += 1
+            db.close()
+            return render_template("portfolio.html", curruser = username, investments = 'True', pie_chart = encoded_pc.decode('utf-8'), stock_graphs = stock_graphs)
+        else:
+            db.close()
+            return render_template("portfolio.html", curruser = username, investments = 'False')
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
 
@@ -325,8 +406,13 @@ def take_input():
             else:
                 return "<script>alert('Select at least 5 stocks'); window.location = window.history.back();</script>"
         else:
-            df = pd.read_csv("stocksymbols.csv")
-            syms = list(df['Symbol'])
+            small_cap = pd.read_csv("small cap.csv")
+            mid_cap = pd.read_csv("mid cap.csv")
+            syms = list(small_cap['Symbol'])
+            for s in list(mid_cap['Symbol']):
+                syms.append(s)
+            syms = list(set(syms))
+            print(len(syms))
             return render_template("input.html", curruser = username, syms = syms)
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
