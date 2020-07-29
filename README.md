@@ -22,6 +22,21 @@ This will be a diversified portfolio and protect us from systematic and unsystem
 - Profit/Loss statement for every month and cumulative Profit/Loss statement
 - All the changes in need will be shown in percentage scale
 
+# About Us
+Student Managed Investment Portfolio
+We, the Quantizers team, have created this web application based product specifically for students and people coming from low-income class.
+This web app is the one-stop destination for all your investment needs and leads to a path of financial freedom.
+We have mainly used three techniques which are as follows-
+Markowitz model
+Minimum Variance
+Sharpe Ratio maximization
+
+In the first technique, we apply the Markowitz model, which states that we can have a portfolio with variable returns for a fixed variance. As the model speaks for itself, we have carefully selected handpicked stocks using fundamental analysis method to screen those who shined apart from the hundreds of other stocks present in the Indian Stock Indices.
+
+After selecting those few stocks, we apply the Markowitz model on them by fixing the variance to a set value and optimizing it to achieve the highest returns.
+In the minimum variance model, we select stocks that generate steady revenue and minimize the portfolio variance to achieve a portfolio that comprises equity, which can hold their own even in the darkest of times.
+The final one is the Sharpe Ratio model in which we maximize using Monte Carlo simulations to achieve an aggressive portfolio that comprises stocks capable of generating exquisite returns, which will result in an increment of your net worth by a considerable margin, but they also come with significant risk.
+
 ## Tech Stack
 ### Tools & Technologies
 - Flask(micro web framework of python)
