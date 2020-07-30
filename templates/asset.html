@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block title %}
+  {{category}} Stocks
+{% endblock %}
+
 {% block heading %}
   {{category}}
 {% endblock %}
@@ -79,9 +83,7 @@
         <th scope="col">S. No.</th>
         <th scope="col">Symbol</th>
         <th scope="col">Name</th>
-        <th scope="col">Close</th>
-        <th scope="col">Currency</th>
-        <th scope="col">Yahoo Finance</th>
+        <th scope="col">Price(INR)</th>
         {% if loginstatus == 'True' %}
           <th scope="col">Quantity</th>
         {% endif %}
@@ -94,8 +96,6 @@
           <td>{{d.symbol}}</td>
           <td><a href = "/{{category}}/{{d.name}}/yearly">{{d.name}}</a></td>
           <td>{{prices[loop.index-1]}}</td>
-          <td>{{d.currency}}</td>
-          <td><a href="{{d.url}}">{{d.symbol}}</a></td>
           {% if loginstatus == 'True' %}
             <td>
               <form action="{{url_for('buy', id = d.id, price = prices[loop.index-1])}}" method="POST">
