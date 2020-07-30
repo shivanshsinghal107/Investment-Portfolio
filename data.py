@@ -21,9 +21,9 @@ def make_tables():
     db.execute('''CREATE TABLE IF NOT EXISTS users (username VARCHAR(16) NOT NULL, password VARCHAR(64) NOT NULL, join_date text,
                 PRIMARY KEY(username))''')
     db.execute('''CREATE TABLE IF NOT EXISTS email (mail VARCHAR(64) NOT NULL, username VARCHAR(16) NOT NULL, FOREIGN KEY(username)
-                REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, PRIMARY KEY(mail, username))''')
+                REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, PRIMARY KEY(mail, username), UNIQUE(mail, username))''')
     db.execute('''CREATE TABLE IF NOT EXISTS assets (id INTEGER PRIMARY KEY, type VARCHAR(40), name VARCHAR(50),
-                currency VARCHAR(5), symbol VARCHAR(10))''')
+                currency VARCHAR(5), symbol VARCHAR(10), UNIQUE(name))''')
     db.execute('''CREATE TABLE IF NOT EXISTS investment (id INTEGER PRIMARY KEY, username VARCHAR(16) NOT NULL,
                 asset VARCHAR(50), buy_price FLOAT, quantity INTEGER, date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
     db.execute('''CREATE TABLE IF NOT EXISTS returns (id INTEGER PRIMARY KEY, username VARCHAR(16) NOT NULL,
