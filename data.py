@@ -86,3 +86,5 @@ def create_tables():
     db.close()
     if len(table_data) <= 0:
         insert_assets()
+        
+create_tables()
