@@ -19,8 +19,6 @@ from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from data import make_tables, insert_assets
-
 app = Flask(__name__)
 
 # Configure session to use filesystem
@@ -31,12 +29,7 @@ Session(app)
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL", "sqlite:///database.db"))
 db = scoped_session(sessionmaker(bind=engine))
-
-make_tables()
-table_data = db.execute("SELECT * FROM assets").fetchall()
-db.close()
-if len(table_data) <= 0:
-    insert_assets()
+password = os.getenv("password")
 
 yf.pdr_override()
 
@@ -63,7 +56,7 @@ def send_mail(email, subject, body):
     server.starttls()
     server.ehlo()
 
-    server.login('help.quantizers@gmail.com', 'gdnrkmiiutvcvvol') # see the video tutorial from README.md file
+    server.login('help.quantizers@gmail.com', password) # see the video tutorial from README.md file
 
     msg = f"Subject: {subject}\n\n{body}"
 
