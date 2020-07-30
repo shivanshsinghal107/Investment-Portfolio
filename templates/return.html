@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block title %}
+  {{curruser}} Returns
+{% endblock %}
+
 {% block heading %}
   {{curruser}}'s Returns
 {% endblock %}
@@ -57,10 +61,9 @@
         <th scope="col">Category</th>
         <th scope="col">Name</th>
         <th scope="col">Quantity</th>
-        <th scope="col">Buying Price</th>
-        <th scope="col">Selling Price</th>
+        <th scope="col">Buying Price(INR)</th>
+        <th scope="col">Selling Price(INR)</th>
         <th scope="col">% Change</th>
-        <th scope="col">Currency</th>
       </tr>
     </thead>
     <tbody>
@@ -76,7 +79,6 @@
           <td>{{r.buy_price}}</td>
           <td>{{r.sell_price}}</td>
           <td>{{pchange[loop.index-1]}}</td>
-          <td>{{currency[loop.index-1]}}</td>
         </tr>
       {% endfor %}
     </tbody>
