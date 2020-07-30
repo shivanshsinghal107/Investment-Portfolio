@@ -197,8 +197,10 @@ def sell(id, price):
         date = str(datetime.datetime.utcnow())
         inv = db.execute("SELECT * FROM investment WHERE id = :id", {"id": id}).fetchall()[0]
         db.execute("INSERT INTO returns (username, asset, buy_price, sell_price, quantity, buy_date, sell_date) VALUES (:username, :asset, :buy_price, :sell_price, :quantity, :buy_date, :sell_date)", {"username": username, "asset": inv.asset, "buy_price": inv.buy_price, "sell_price": price, "quantity": quantity, "buy_date": inv.date, "sell_date": date})
-        if quantity <= inv.quantity:
+        if quantity < inv.quantity:
             db.execute("UPDATE investment SET quantity = :quantity WHERE id = :id", {"quantity": (inv.quantity-quantity), "id": id})
+        elif quantity == inv.quantity:
+            db.execute("DELETE FROM investments WHERE id = :id", {"id": id})
         print(f"Sold {inv.asset}")
         db.commit()
         db.close()
