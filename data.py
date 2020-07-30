@@ -79,3 +79,9 @@ def insert_assets():
 
     db.commit()
     db.close()
+
+make_tables()
+table_data = db.execute("SELECT * FROM assets").fetchall()
+db.close()
+if len(table_data) <= 0:
+    insert_assets()
