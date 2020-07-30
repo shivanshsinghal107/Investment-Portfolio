@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block title %}
+  {{curruser}} Portfolio
+{% endblock %}
+
 {% block heading %}
   {{curruser}}'s Portfolio
 {% endblock %}
@@ -63,6 +67,6 @@
         </a>
       </div>
     {% else %}
-      <h3>Doesn't look good empty here, make use of the web app</h3>
+      <h3>Doesn't look good empty here, make use of the app</h3>
     {% endif %}
 {% endblock %}
