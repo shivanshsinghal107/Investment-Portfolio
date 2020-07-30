@@ -104,8 +104,8 @@ def register():
             session["logged_in"] = True
             session["username"] = username
             db.close()
-            subject = 'Thanks for registering.'
-            body = "Hope you'll have a good experience with QUANTIZERS"
+            subject = 'Getting started with Quantizers'
+            body = '''Hey there fellow Investor!\n\nWe wish you best of luck for your coming financial ventures as you join the Quantizers family.\nIt takes a lot of courage to invest your hard-earned money in a domain of unknown nature. For this specific reason, we have created this web app but if you have any doubts or want some more info on the methodology used, drop at help.quantizers@gmail.com or through feedback form through the web app.\n\nAnd kindly go through the Terms and Conditions before performing any actual transaction -\n\nThe QUANTIZERS or any people in this venture are not registered with SEBI. This web app is solely meant to provide you with performance simulations on a portfolio that you will select based according to your financial intelligence. We are not certified under IA regulation in any manner. Therefore we are not liable for your money, and this platform is based on virtual money; hence you are not required to put in any of your Real Cash. Our optimization models will suggest the best possible portfolio to invest in through various mathematical portfolio optimization models, but it's all on you whether to go with it or not. We will show you the real-world possibility scenarios of various assets, and that's all.\n\nThis web application is entirely public and free to use.\n\nWe suggest you make your financial decision on your own choice and not solely based on your methods. All the investments that you make are subjected to market risks, so do thorough research before investing your hard-earned money. In any case, as we are not handling your real cash, therefore we won't be liable for any accusations. Any future complaints about any loss or damage will not be considered.\n\nKeep Trading!!\nThank You\nTeam Quantizers'''
             send_mail(email, subject, body)
             return "<script>alert('Registered Successfully, check your mail');window.location = 'http://127.0.0.1:5000/';</script>"
         else:
@@ -221,7 +221,6 @@ def investments():
         if len(invs) > 0:
             dates = []
             prices = []
-            currency = []
             type = []
             pchange = []
             net_pl = 0
@@ -236,7 +235,6 @@ def investments():
                 if i.quantity > 0:
                     d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
                     syms.append(d.symbol)
-                    currency.append(d.currency)
                     type.append(d.type)
             syms.append('^NSEI')
             syms.append('^BSESN')
@@ -253,7 +251,7 @@ def investments():
                 data = curr_data[[d.symbol, index]]
                 returns = data.pct_change()
                 cov = returns.cov()
-                covar = cov[syms[i]].iloc[1]
+                covar = cov[d.symbol].iloc[1]
                 var = cov[index].iloc[1]
                 beta = round(covar/var, 2)
                 betas.append(beta)
@@ -270,10 +268,10 @@ def investments():
                     dates.append(date)
                     total += invs[i].buy_price * invs[i].quantity
             db.close()
-            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, currency = currency, type = type, pchange = pchange, betas = betas, cagrs = cagrs, rois = rois, net_pl = int(net_pl), total = int(total))
+            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, type = type, pchange = pchange, betas = betas, cagrs = cagrs, rois = rois, net_pl = int(net_pl), total = int(total))
         else:
             db.close()
-            return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], currency = [], type = [], pchange = [], betas = betas, cagrs = cagrs, rois = rois, net_pl = 0, total = 0)
+            return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], type = [], pchange = [], betas = [], cagrs = [], rois = [], net_pl = 0, total = 0)
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
 
@@ -281,12 +279,11 @@ def investments():
 def returns():
     if session.get("logged_in"):
         username = session["username"]
-        rets = db.execute("SELECT * FROM returns WHERE username = :username ORDER BY date DESC", {"username": username}).fetchall()
+        rets = db.execute("SELECT * FROM returns WHERE username = :username ORDER BY sell_date DESC", {"username": username}).fetchall()
         print(len(rets))
         buy_dates = []
         sell_dates = []
         symbols = []
-        currency = []
         type = []
         pchange = []
         net_pl = 0
@@ -300,11 +297,10 @@ def returns():
             date = f"{da[2]}-{da[1]}-{da[0]}"
             sell_dates.append(date)
             symbols.append(d.symbol)
-            currency.append(d.currency)
             type.append(d.type)
             net_pl += r.quantity * (r.sell_price - r.buy_price)
         db.close()
-        return render_template("return.html", curruser = username, buy_dates = buy_dates, sell_dates = sell_dates, rets = rets, symbols = symbols, currency = currency, type = type, pchange = pchange, net_pl = int(net_pl))
+        return render_template("return.html", curruser = username, buy_dates = buy_dates, sell_dates = sell_dates, rets = rets, symbols = symbols, type = type, pchange = pchange, net_pl = int(net_pl))
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
 
@@ -397,7 +393,7 @@ def take_input():
         if request.method == 'POST':
             money = request.form.get("money")
             stocks = request.form.getlist("stocks")
-            if len(stocks) > 5:
+            if len(stocks) >= 5:
                 stock_str = ""
                 for s in stocks:
                     stock_str += s + ", "
@@ -408,10 +404,13 @@ def take_input():
         else:
             small_cap = pd.read_csv("small cap.csv")
             mid_cap = pd.read_csv("mid cap.csv")
+            large_cap = pd.read_csv("large cap.csv")
             syms = list(small_cap['Symbol'])
             for s in list(mid_cap['Symbol']):
                 syms.append(s)
-            syms = list(set(syms))
+            for s in list(large_cap['Symbol']):
+                syms.append(s)
+            syms = sorted(list(set(syms)))
             print(len(syms))
             return render_template("input.html", curruser = username, syms = syms)
     else:
@@ -423,60 +422,87 @@ def optimization(stocks, money):
         username = session["username"]
         syms = stocks.split(", ")[:-1]
         k = len(syms)
-        stock_data = pdr.get_data_yahoo(syms, start = "2016-04-01", end = "2019-04-01")['Adj Close']
-        returns = stock_data.pct_change()
-        #mean_daily_returns = np.array(returns.mean()).reshape(-1, 1)
-        cov = returns.cov()
-        stds = np.array(returns.std()).reshape(-1, 1)
-        product_std = np.dot(stds, stds.T)
-        cov_mat = np.array(cov)
-        corr = cov_mat / product_std
-        ret = (stock_data.iloc[-1]/stock_data.iloc[0] - 1)
-        annual_return = np.array(ret).reshape(-1, 1)
+        today = str(datetime.datetime.utcnow())[:10]
+        start = str(int(today[:4]) - 5) + today[4:]
+        try:
+            stock_data = pdr.get_data_yahoo(syms, start = start)['Adj Close']
+            returns = stock_data.pct_change()
+            #mean_daily_returns = np.array(returns.mean()).reshape(-1, 1)
+            cov = returns.cov()
+            stds = np.array(returns.std()).reshape(-1, 1)
+            product_std = np.dot(stds, stds.T)
+            cov_mat = np.array(cov)
+            corr = cov_mat / product_std
+            ret = (stock_data.iloc[-1]/stock_data.iloc[0] - 1)
+            annual_return = np.array(ret).reshape(-1, 1)
 
-        # max sharpe ratio
-        risk_free_rate = 0.04
-        best_wts = maximize_sharpe_ratio(annual_return, risk_free_rate, cov, k)
-        sharpe_wts = []
-        sharpe_per_wts = []
-        for i in range(len(best_wts)):
-            wt = round(best_wts[i, 0], 2)
-            sharpe_wts.append(wt)
-            sharpe_per_wts.append(str(int(wt*100)) + " %")
+            # max sharpe ratio
+            risk_free_rate = 0.04
+            best_wts = maximize_sharpe_ratio(annual_return, risk_free_rate, cov, k)
+            sharpe_wts = []
+            sharpe_per_wts = []
+            for i in range(len(best_wts)):
+                wt = round(best_wts[i, 0], 2)
+                sharpe_wts.append(wt)
+                sharpe_per_wts.append(str(int(wt*100)) + " %")
 
-        # minimum portfolio variance
-        best_wts = minimize_portfolio_variance(corr, stds, annual_return, k)
-        var_wts = []
-        var_per_wts = []
-        for i in range(len(best_wts)):
-            wt = round(best_wts[i, 0], 2)
-            var_wts.append(wt)
-            var_per_wts.append(str(int(wt*100)) + " %")
+            # minimum portfolio variance
+            best_wts = minimize_portfolio_variance(corr, stds, annual_return, k)
+            var_wts = []
+            var_per_wts = []
+            for i in range(len(best_wts)):
+                wt = round(best_wts[i, 0], 2)
+                var_wts.append(wt)
+                var_per_wts.append(str(int(wt*100)) + " %")
 
-        # monthly, quarterly, half-yearly, yearly
-        min_port_var = 1.42
-        max_port_var = 1.47
-        best_wts = maximize_annual_return(stock_data, stds, corr, annual_return, min_port_var, max_port_var, k)
-        max_return_wts = []
-        max_return_per_wts = []
-        for i in range(len(best_wts)):
-            wt = round(best_wts[i, 0], 2)
-            max_return_wts.append(wt)
-            max_return_per_wts.append(str(int(wt*100)) + " %")
+            # monthly, quarterly, half-yearly, yearly
+            min_port_var = 1.42
+            max_port_var = 1.47
+            best_wts = maximize_annual_return(stock_data, stds, corr, annual_return, min_port_var, max_port_var, k)
+            max_return_wts = []
+            max_return_per_wts = []
+            for i in range(len(best_wts)):
+                wt = round(best_wts[i, 0], 2)
+                max_return_wts.append(wt)
+                max_return_per_wts.append(str(int(wt*100)) + " %")
 
-        start = str(datetime.datetime.utcnow())[:10]
-        curr_data = pdr.get_data_yahoo(syms, start = start)['Close']
-        # python list comprehension
-        curr_price = [round(price, 2) for price in list(curr_data.iloc[0])]
-        sharpe_money = [round(w*int(money), 2) for w in sharpe_wts]
-        sharpe_units = [int(mon / price) for mon, price in zip(sharpe_money, curr_price)]
-        var_money = [round(w*int(money), 2) for w in var_wts]
-        var_units = [int(mon / price) for mon, price in zip(var_money, curr_price)]
-        max_return_money = [round(w*int(money), 2) for w in max_return_wts]
-        max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
-        return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns))
+            start = str(datetime.datetime.utcnow())[:10]
+            curr_data = pdr.get_data_yahoo(syms, start = start)['Close']
+            # python list comprehension
+            curr_price = [round(price, 2) for price in list(curr_data.iloc[0])]
+            sharpe_money = [round(w*int(money), 2) for w in sharpe_wts]
+            sharpe_units = [int(mon / price) for mon, price in zip(sharpe_money, curr_price)]
+            var_money = [round(w*int(money), 2) for w in var_wts]
+            var_units = [int(mon / price) for mon, price in zip(var_money, curr_price)]
+            max_return_money = [round(w*int(money), 2) for w in max_return_wts]
+            max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
+
+            return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns))
+        except:
+            return render_template("error.html")
     else:
         return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+
+@app.route("/buy_optimized", methods = ['GET', 'POST'])
+def buy_optimized():
+    if request.method == 'POST':
+        username = session["username"]
+        symbols = request.args.getlist("symbols")
+        prices = request.args.getlist("curr_price")
+        quantities = request.args.getlist("units")
+        date = str(datetime.datetime.utcnow())[:10]
+        print(symbols)
+        print(quantities)
+        for i in range(len(symbols)):
+            if int(quantities[i]) > 0:
+                asset = db.execute("SELECT * FROM assets WHERE symbol = :symbol", {"symbol": symbols[i]}).fetchall()[0]
+                db.execute("INSERT INTO investment (username, asset, buy_price, quantity, date) VALUES (:username, :asset, :buy_price, :quantity, :date)", {"username": username, "asset": asset.name, "buy_price": float(prices[i]), "quantity": int(quantities[i]), "date": date})
+                print(f"Invested in {asset.name}")
+        db.commit()
+        db.close()
+        return "<script>alert('All investments successful'); window.location = 'http://127.0.0.1:5000/';</script>"
+    else:
+        return "<script>alert('Method not allowed'); window.location = window.history.back();</script>"
 
 def maximize_sharpe_ratio(annual_return, risk_free_rate, cov, k):
     srs = []
