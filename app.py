@@ -79,7 +79,7 @@ def index():
 @app.route("/register", methods = ['GET', 'POST'])
 def register():
     if session.get("logged_in"):
-        return "<script>alert('You are already logged in, log out first'); window.location = 'http://127.0.0.1:5000/';</script>"
+        return "<script>alert('You are already logged in, log out first'); window.location = 'http://quantizers.herokuapp.com/';</script>"
     else:
         if request.method == 'POST':
             username = request.form.get("username")
@@ -100,14 +100,14 @@ def register():
             subject = 'Getting started with Quantizers'
             body = '''Hey there fellow Investor!\n\nWe wish you best of luck for your coming financial ventures as you join the Quantizers family.\nIt takes a lot of courage to invest your hard-earned money in a domain of unknown nature. For this specific reason, we have created this web app but if you have any doubts or want some more info on the methodology used, drop at help.quantizers@gmail.com or through feedback form through the web app.\n\nAnd kindly go through the Terms and Conditions before performing any actual transaction -\n\nThe QUANTIZERS or any people in this venture are not registered with SEBI. This web app is solely meant to provide you with performance simulations on a portfolio that you will select based according to your financial intelligence. We are not certified under IA regulation in any manner. Therefore we are not liable for your money, and this platform is based on virtual money; hence you are not required to put in any of your Real Cash. Our optimization models will suggest the best possible portfolio to invest in through various mathematical portfolio optimization models, but it's all on you whether to go with it or not. We will show you the real-world possibility scenarios of various assets, and that's all.\n\nThis web application is entirely public and free to use.\n\nWe suggest you make your financial decision on your own choice and not solely based on your methods. All the investments that you make are subjected to market risks, so do thorough research before investing your hard-earned money. In any case, as we are not handling your real cash, therefore we won't be liable for any accusations. Any future complaints about any loss or damage will not be considered.\n\nKeep Trading!!\nThank You\nTeam Quantizers'''
             send_mail(email, subject, body)
-            return "<script>alert('Registered Successfully, check your mail');window.location = 'http://127.0.0.1:5000/';</script>"
+            return "<script>alert('Registered Successfully, check your mail');window.location = 'http://quantizers.herokuapp.com/';</script>"
         else:
             return render_template("register.html")
 
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
     if session.get("logged_in"):
-        return "<script>alert('You are already logged in'); window.location = 'http://127.0.0.1:5000/';</script>"
+        return "<script>alert('You are already logged in'); window.location = 'http://quantizers.herokuapp.com/';</script>"
     else:
         if request.method == 'POST':
             username = request.form.get("username")
@@ -118,13 +118,13 @@ def login():
                     session["logged_in"] = True
                     session["username"] = username
                     db.close()
-                    return "<script>alert('Login Successful');window.location = 'http://127.0.0.1:5000/';</script>"
+                    return "<script>alert('Login Successful');window.location = 'http://quantizers.herokuapp.com/';</script>"
                 else:
                     db.close()
-                    return "<script>alert('Invalid password');window.location = 'http://127.0.0.1:5000/login';</script>"
+                    return "<script>alert('Invalid password');window.location = 'http://quantizers.herokuapp.com/login';</script>"
             else:
                 db.close()
-                return "<script>alert('Please register first');window.location = 'http://127.0.0.1:5000/register';</script>"
+                return "<script>alert('Please register first');window.location = 'http://quantizers.herokuapp.com/register';</script>"
         else:
             return render_template("login.html")
 
@@ -133,7 +133,7 @@ def logout():
     print(session.keys())
     session.clear()
     print(session.keys())
-    return redirect("http://127.0.0.1:5000")
+    return redirect("http://quantizers.herokuapp.com/")
 
 @app.route("/tnc")
 def terms_and_cond():
@@ -153,9 +153,9 @@ def feedback():
             feedback = request.form.get("feedback")
             subject = f'Feedback from {session["username"]}'
             send_mail("help.quantizers@gmail.com", subject, feedback)
-            return "<script>alert('Feedback submitted successfully'); window.location = 'http://127.0.0.1:5000/';</script>"
+            return "<script>alert('Feedback submitted successfully'); window.location = 'http://quantizers.herokuapp.com/';</script>"
     else:
-        return "<script>alert('Please login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+        return "<script>alert('Please login first'); window.location = 'http://quantizers.herokuapp.com/login';</script>"
 
 @app.route("/<category>", methods = ['GET', 'POST'])
 def get_assets(category):
@@ -266,7 +266,7 @@ def investments():
             db.close()
             return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], type = [], pchange = [], betas = [], cagrs = [], rois = [], net_pl = 0, total = 0)
     else:
-        return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+        return "<script>alert('Login first'); window.location = 'http://quantizers.herokuapp.com/login';</script>"
 
 @app.route("/portfolio/return", methods = ['GET', 'POST'])
 def returns():
@@ -295,7 +295,7 @@ def returns():
         db.close()
         return render_template("return.html", curruser = username, buy_dates = buy_dates, sell_dates = sell_dates, rets = rets, symbols = symbols, type = type, pchange = pchange, net_pl = int(net_pl))
     else:
-        return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+        return "<script>alert('Login first'); window.location = 'http://quantizers.herokuapp.com/login';</script>"
 
 @app.route("/portfolio", methods = ['GET', 'POST'])
 def portfolio():
@@ -346,7 +346,7 @@ def portfolio():
             db.close()
             return render_template("portfolio.html", curruser = username, investments = 'False')
     else:
-        return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+        return "<script>alert('Login first'); window.location = 'http://quantizers.herokuapp.com/login';</script>"
 
 @app.route("/<category>/<asset>/<show>", methods = ['GET', 'POST'])
 def display_asset(category, asset, show):
@@ -391,7 +391,7 @@ def take_input():
                 for s in stocks:
                     stock_str += s + ", "
                 print(stock_str)
-                return redirect(f"http://127.0.0.1:5000/optimization/{stock_str}/{money}")
+                return redirect(f"http://quantizers.herokuapp.com/optimization/{stock_str}/{money}")
             else:
                 return "<script>alert('Select at least 5 stocks'); window.location = window.history.back();</script>"
         else:
@@ -407,7 +407,7 @@ def take_input():
             print(len(syms))
             return render_template("input.html", curruser = username, syms = syms)
     else:
-        return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+        return "<script>alert('Login first'); window.location = 'http://quantizers.herokuapp.com/login';</script>"
 
 @app.route("/optimization/<stocks>/<money>", methods = ['GET', 'POST'])
 def optimization(stocks, money):
@@ -474,7 +474,7 @@ def optimization(stocks, money):
         except:
             return render_template("error.html")
     else:
-        return "<script>alert('Login first'); window.location = 'http://127.0.0.1:5000/login';</script>"
+        return "<script>alert('Login first'); window.location = 'http://quantizers.herokuapp.com/login';</script>"
 
 @app.route("/buy_optimized", methods = ['GET', 'POST'])
 def buy_optimized():
@@ -493,7 +493,7 @@ def buy_optimized():
                 print(f"Invested in {asset.name}")
         db.commit()
         db.close()
-        return "<script>alert('All investments successful'); window.location = 'http://127.0.0.1:5000/';</script>"
+        return "<script>alert('All investments successful'); window.location = 'http://quantizers.herokuapp.com/';</script>"
     else:
         return "<script>alert('Method not allowed'); window.location = window.history.back();</script>"
 
