@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block title %}
+  Optimization Results
+{% endblock %}
+
 {% block heading %}
   Portfolio Optimization
 {% endblock %}
@@ -40,8 +44,9 @@
     </div>
   </nav>
   <br><br>
-  <h2>Suggested Porfolio Optimizations</h2>
-  <h3>Maximum Return | Moderate Risk</h3>
+  <h3>Suggested Porfolio Optimizations</h3>
+  <h4>Maximum Return | Moderate Risk (Maximum Sharpe Ratio Model)</h4>
+    <p>In Sharpe Ratio model we maximize using Monte Carlo simulations to achieve an aggressive portfolio that comprises stocks capable of generating exquisite returns, which will result in an increment of your net worth by a considerable margin, but they also come with significant risk.</p>
     <table class="table table-dark">
       <thead>
         <tr>
@@ -72,8 +77,12 @@
         </tr>
       </tbody>
     </table>
+    <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = sharpe_units)}}" method="POST">
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Buy</button>
+    </form>
   <br>
-  <h3>Moderate Return | Minimum Risk</h3>
+  <h4>Moderate Return | Minimum Risk (Minimum Variance Model)</h4>
+    <p>In the minimum variance model, we select stocks that generate steady revenue and minimize the portfolio variance to achieve a portfolio that comprises equity, which can hold their own even in the darkest of times.</p>
     <table class="table table-dark">
       <thead>
         <tr>
@@ -104,8 +113,13 @@
         </tr>
       </tbody>
     </table>
+    <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = var_units)}}" method="POST">
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Buy</button>
+    </form>
   <br>
-  <h3>Highly Diversified</h3>
+  <h4>Highly Diversified (Markowitz Model)</h4>
+    <p>In this technique, we apply the Markowitz model, which states that we can have a portfolio with variable returns for a fixed variance. As the model speaks for itself, we have carefully selected handpicked stocks using fundamental analysis method to screen those who shined apart from the hundreds of other stocks present in the Indian Stock Indices.<br>
+    After selecting those few stocks, we apply the Markowitz model on them by fixing the variance to a set value and optimizing it to achieve the highest returns.</p>
     <table class="table table-dark">
       <thead>
         <tr>
@@ -136,4 +150,7 @@
         </tr>
       </tbody>
     </table>
+    <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = max_return_units)}}" method="POST">
+      <button type="submit" class="btn btn-primary btn-lg btn-block">Buy</button>
+    </form>
 {% endblock %}
