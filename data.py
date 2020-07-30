@@ -22,12 +22,12 @@ def make_tables():
                 PRIMARY KEY(username))''')
     db.execute('''CREATE TABLE IF NOT EXISTS email (mail VARCHAR(64) NOT NULL, username VARCHAR(16) NOT NULL, FOREIGN KEY(username)
                 REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, PRIMARY KEY(mail, username), UNIQUE(mail, username))''')
-    db.execute('''CREATE TABLE IF NOT EXISTS assets (id SERIAL PRIMARY KEY, type VARCHAR(100), name text,
-                currency text, symbol text, UNIQUE(name))''')
+    db.execute('''CREATE TABLE IF NOT EXISTS assets (id SERIAL PRIMARY KEY, type VARCHAR NOT NULL, name VARCHAR NOT NULL,
+                currency VARCHAR NOT NULL, symbol VARCHAR NOT NULL, UNIQUE(name))''')
     db.execute('''CREATE TABLE IF NOT EXISTS investment (id SERIAL PRIMARY KEY, username VARCHAR(16) NOT NULL,
-                asset text, buy_price FLOAT, quantity INTEGER, date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
+                asset VARCHAR NOT NULL, buy_price FLOAT, quantity INTEGER, date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
     db.execute('''CREATE TABLE IF NOT EXISTS returns (id SERIAL PRIMARY KEY, username VARCHAR(16) NOT NULL,
-                asset text, buy_price FLOAT, sell_price FLOAT, quantity INTEGER, buy_date text, sell_date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
+                asset VARCHAR NOT NULL, buy_price FLOAT, sell_price FLOAT, quantity INTEGER, buy_date text, sell_date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
     db.commit()
     db.close()
 
