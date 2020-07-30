@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block title %}
+  {{asset}} ({{category}})
+{% endblock %}
+
 {% block heading %}
   {{asset}} ({{curr_price}} {{currency}})
 {% endblock %}
@@ -30,36 +34,27 @@
           <a class="nav-link" href="/logout">Logout</a>
         </li>
           {% if show == 'Daily' %}
-            <li class="nav-item dropdown active">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                More
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="nav-link" href="/{{category}}/{{asset}}/monthly">Monthly</a>
-                <a class="nav-link" href="/{{category}}/{{asset}}/yearly">Yearly</a>
-              </div>
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/monthly">Monthly</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/yearly">Yearly</a>
             </li>
           {% endif %}
           {% if show == 'Monthly' %}
-            <li class="nav-item dropdown active">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                More
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="nav-link" href="/{{category}}/{{asset}}/daily">Daily</a>
-                <a class="nav-link" href="/{{category}}/{{asset}}/yearly">Yearly</a>
-              </div>
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/daily">Daily</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/yearly">Yearly</a>
             </li>
           {% endif %}
           {% if show == 'Yearly' %}
-            <li class="nav-item dropdown active">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                More
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="nav-link" href="/{{category}}/{{asset}}/monthly">Monthly</a>
-                <a class="nav-link" href="/{{category}}/{{asset}}/daily">Daily</a>
-              </div>
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/monthly">Monthly</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="/{{category}}/{{asset}}/daily">Daily</a>
             </li>
           {% endif %}
           <li class="nav-item dropdown active">
