@@ -411,40 +411,41 @@ def optimization(stocks, money):
         k = len(syms)
         today = str(datetime.datetime.utcnow())[:10]
         start = str(int(today[:4]) - 5) + today[4:]
+        #try:
+        stock_data = pdr.get_data_yahoo(syms, start = start)['Adj Close']
+        returns = stock_data.pct_change()
+        #mean_daily_returns = np.array(returns.mean()).reshape(-1, 1)
+        cov = returns.cov()
+        stds = np.array(returns.std()).reshape(-1, 1)
+        product_std = np.dot(stds, stds.T)
+        cov_mat = np.array(cov)
+        corr = cov_mat / product_std
+        ret = (stock_data.iloc[-1]/stock_data.iloc[0] - 1)
+        annual_return = np.array(ret).reshape(-1, 1)
+
+        # max sharpe ratio
+        risk_free_rate = 0.04
+        best_wts = maximize_sharpe_ratio(annual_return, risk_free_rate, cov, k)
+        sharpe_wts = []
+        sharpe_per_wts = []
+        for i in range(len(best_wts)):
+            wt = round(best_wts[i, 0], 2)
+            sharpe_wts.append(wt)
+            sharpe_per_wts.append(str(int(wt*100)) + " %")
+
+        # minimum portfolio variance
+        best_wts = minimize_portfolio_variance(corr, stds, annual_return, k)
+        var_wts = []
+        var_per_wts = []
+        for i in range(len(best_wts)):
+            wt = round(best_wts[i, 0], 2)
+            var_wts.append(wt)
+            var_per_wts.append(str(int(wt*100)) + " %")
+
+        # monthly, quarterly, half-yearly, yearly
         try:
-            stock_data = pdr.get_data_yahoo(syms, start = start)['Adj Close']
-            returns = stock_data.pct_change()
-            #mean_daily_returns = np.array(returns.mean()).reshape(-1, 1)
-            cov = returns.cov()
-            stds = np.array(returns.std()).reshape(-1, 1)
-            product_std = np.dot(stds, stds.T)
-            cov_mat = np.array(cov)
-            corr = cov_mat / product_std
-            ret = (stock_data.iloc[-1]/stock_data.iloc[0] - 1)
-            annual_return = np.array(ret).reshape(-1, 1)
-
-            # max sharpe ratio
-            risk_free_rate = 0.04
-            best_wts = maximize_sharpe_ratio(annual_return, risk_free_rate, cov, k)
-            sharpe_wts = []
-            sharpe_per_wts = []
-            for i in range(len(best_wts)):
-                wt = round(best_wts[i, 0], 2)
-                sharpe_wts.append(wt)
-                sharpe_per_wts.append(str(int(wt*100)) + " %")
-
-            # minimum portfolio variance
-            best_wts = minimize_portfolio_variance(corr, stds, annual_return, k)
-            var_wts = []
-            var_per_wts = []
-            for i in range(len(best_wts)):
-                wt = round(best_wts[i, 0], 2)
-                var_wts.append(wt)
-                var_per_wts.append(str(int(wt*100)) + " %")
-
-            # monthly, quarterly, half-yearly, yearly
-            min_port_var = 1.65
-            max_port_var = 1.70
+            min_port_var = 1.30
+            max_port_var = 1.40
             best_wts = maximize_annual_return(stock_data, stds, corr, annual_return, min_port_var, max_port_var, k)
             max_return_wts = []
             max_return_per_wts = []
@@ -452,21 +453,27 @@ def optimization(stocks, money):
                 wt = round(best_wts[i, 0], 2)
                 max_return_wts.append(wt)
                 max_return_per_wts.append(str(int(wt*100)) + " %")
-
-            start = str(datetime.datetime.utcnow())[:10]
-            curr_data = pdr.get_data_yahoo(syms, start = start)['Close']
-            # python list comprehension
-            curr_price = [round(price, 2) for price in list(curr_data.iloc[0])]
-            sharpe_money = [round(w*int(money), 2) for w in sharpe_wts]
-            sharpe_units = [int(mon / price) for mon, price in zip(sharpe_money, curr_price)]
-            var_money = [round(w*int(money), 2) for w in var_wts]
-            var_units = [int(mon / price) for mon, price in zip(var_money, curr_price)]
-            max_return_money = [round(w*int(money), 2) for w in max_return_wts]
-            max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
-
-            return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns))
         except:
-            return render_template("error.html")
+            max_return_wts = []
+            max_return_per_wts = []
+            for i in range(k):
+                max_return_wts.append(0)
+                max_return_per_wts.append('0 %')
+
+        start = str(datetime.datetime.utcnow())[:10]
+        curr_data = pdr.get_data_yahoo(syms, start = start)['Close']
+        # python list comprehension
+        curr_price = [round(price, 2) for price in list(curr_data.iloc[-1])]
+        sharpe_money = [round(w*int(money), 2) for w in sharpe_wts]
+        sharpe_units = [int(mon / price) for mon, price in zip(sharpe_money, curr_price)]
+        var_money = [round(w*int(money), 2) for w in var_wts]
+        var_units = [int(mon / price) for mon, price in zip(var_money, curr_price)]
+        max_return_money = [round(w*int(money), 2) for w in max_return_wts]
+        max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
+
+        return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns))
+        #except:
+        #    return render_template("error.html")
     else:
         return "<script>alert('Login first'); window.location = 'http://quantizers.herokuapp.com/login';</script>"
 
