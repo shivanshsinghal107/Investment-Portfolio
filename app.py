@@ -395,14 +395,8 @@ def take_input():
             else:
                 return "<script>alert('Select at least 5 stocks'); window.location = window.history.back();</script>"
         else:
-            small_cap = pd.read_csv("small cap.csv")
-            mid_cap = pd.read_csv("mid cap.csv")
-            large_cap = pd.read_csv("large cap.csv")
-            syms = list(small_cap['Symbol'])
-            for s in list(mid_cap['Symbol']):
-                syms.append(s)
-            for s in list(large_cap['Symbol']):
-                syms.append(s)
+            stocks = pd.read_csv("stock data.csv")
+            syms = stocks['Symbol']
             syms = sorted(list(set(syms)))
             print(len(syms))
             return render_template("input.html", curruser = username, syms = syms)
