@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block title %}
+  {{curruser}} Investments
+{% endblock %}
+
 {% block heading %}
   {{curruser}}'s Investments
 {% endblock %}
@@ -57,14 +61,13 @@
         <th scope="col">Category</th>
         <th scope="col">Name</th>
         <th scope="col">Quantity</th>
-        <th scope="col">Buying Price</th>
-        <th scope="col">Current Price</th>
+        <th scope="col">Buying Price(INR)</th>
+        <th scope="col">Current Price(INR)</th>
         <th scope="col">% Change</th>
         <th scope="col">Beta</th>
         <th scope="col">CAGR</th>
         <th scope="col">ROI</th>
-        <th scope="col">Currency</th>
-        <th scope="col">Make Money</th>
+        <th scope="col">Sell</th>
       </tr>
     </thead>
     <tbody>
@@ -82,7 +85,6 @@
           <td>{{betas[loop.index-1]}}</td>
           <td>{{cagrs[loop.index-1]}}</td>
           <td>{{rois[loop.index-1]}}</td>
-          <td>{{currency[loop.index-1]}}</td>
           <td>
             <form action="{{url_for('sell', id = i.id, price = prices[loop.index-1])}}" method="POST">
               <div class="form-row align-items-center">
