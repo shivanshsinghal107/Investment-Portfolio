@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block title %}
+  {{info}}
+{% endblock %}
+
 {% block heading %}
   {{info}}
 {% endblock %}
@@ -27,4 +31,10 @@
     </div>
   </nav>
   <br>
+  {% if info == 'About Us' %}
+  {% else %}
+  The QUANTIZERS or any people in this venture are not registered with SEBI. This web app is solely meant to provide you with performance simulations on a portfolio that you will select based according to your financial intelligence. We are not certified under IA regulation in any manner. Therefore we are not liable for your money, and this platform is based on virtual money; hence you are not required to put in any of your real cash. Our optimization models will suggest you the best possible portfolio to invest in, but it's all on you whether to go with it or not. We will show you the real-world possibility scenarios of various assets, and that's all.<br><br>
+  This web application is entirely public and free to use.<br><br>
+  We suggest you not to take your investment decisions based on the information that we provide but on your own choice. All the investments that you make are subjected to market risks, so do thorough research before investing your hard-earned money. In any case, as we are not handling your real cash, therefore we won't be liable for any accusations. Any future complaints about any loss or damage will not be considered.
+  {% endif %}
 {% endblock %}
