@@ -32,44 +32,11 @@ def make_tables():
     db.close()
 
 def insert_assets():
-    print("Inserting small-cap stocks")
-    type = "small-cap"
-    f = open("small cap.csv")
+    f = open("stock data.csv")
     reader = csv.reader(f)
     count = 0
     currency = "INR"
-    for name, symbol in reader:
-        if count == 0:
-            count += 1
-        else:
-            db.execute("INSERT INTO assets (type, name, currency, symbol) VALUES (:type, :name, :currency, :symbol)", {"type": type, "name": name, "currency": currency, "symbol": symbol})
-            print(f"{count}. {name} Inserted")
-            count += 1
-    print()
-
-    print("Inserting mid-cap stocks")
-    type = "mid-cap"
-    f = open("mid cap.csv")
-    reader = csv.reader(f)
-    count = 0
-    currency = "INR"
-    for name, symbol in reader:
-        if count == 0:
-            count += 1
-        else:
-            db.execute("INSERT INTO assets (type, name, currency, symbol) VALUES (:type, :name, :currency, :symbol)", {"type": type, "name": name, "currency": currency, "symbol": symbol})
-            print(f"{count}. {name} Inserted")
-            count += 1
-
-    print()
-
-    print("Inserting large-cap stocks")
-    type = "large-cap"
-    f = open("large cap.csv")
-    reader = csv.reader(f)
-    count = 0
-    currency = "INR"
-    for name, symbol in reader:
+    for name, symbol, type in reader:
         if count == 0:
             count += 1
         else:
@@ -86,5 +53,5 @@ def create_tables():
     db.close()
     if len(table_data) <= 0:
         insert_assets()
-        
+
 create_tables()
