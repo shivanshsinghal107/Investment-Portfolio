@@ -443,8 +443,8 @@ def optimization(stocks, money):
                 var_per_wts.append(str(int(wt*100)) + " %")
 
             # monthly, quarterly, half-yearly, yearly
-            min_port_var = 1.42
-            max_port_var = 1.47
+            min_port_var = 1.65
+            max_port_var = 1.70
             best_wts = maximize_annual_return(stock_data, stds, corr, annual_return, min_port_var, max_port_var, k)
             max_return_wts = []
             max_return_per_wts = []
