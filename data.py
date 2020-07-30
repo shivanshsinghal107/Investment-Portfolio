@@ -22,11 +22,11 @@ def make_tables():
                 PRIMARY KEY(username))''')
     db.execute('''CREATE TABLE IF NOT EXISTS email (mail VARCHAR(64) NOT NULL, username VARCHAR(16) NOT NULL, FOREIGN KEY(username)
                 REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, PRIMARY KEY(mail, username), UNIQUE(mail, username))''')
-    db.execute('''CREATE TABLE IF NOT EXISTS assets (id INTEGER PRIMARY KEY, type VARCHAR(100), name VARCHAR(100),
+    db.execute('''CREATE TABLE IF NOT EXISTS assets (id SERIAL PRIMARY KEY, type VARCHAR(100), name VARCHAR(100),
                 currency VARCHAR(100), symbol VARCHAR(100), UNIQUE(name))''')
-    db.execute('''CREATE TABLE IF NOT EXISTS investment (id INTEGER PRIMARY KEY, username VARCHAR(16) NOT NULL,
+    db.execute('''CREATE TABLE IF NOT EXISTS investment (id SERIAL PRIMARY KEY, username VARCHAR(16) NOT NULL,
                 asset VARCHAR(100), buy_price FLOAT, quantity INTEGER, date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
-    db.execute('''CREATE TABLE IF NOT EXISTS returns (id INTEGER PRIMARY KEY, username VARCHAR(16) NOT NULL,
+    db.execute('''CREATE TABLE IF NOT EXISTS returns (id SERIAL PRIMARY KEY, username VARCHAR(16) NOT NULL,
                 asset VARCHAR(100), buy_price FLOAT, sell_price FLOAT, quantity INTEGER, buy_date text, sell_date text, FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY(asset) REFERENCES assets(name) ON DELETE CASCADE ON UPDATE CASCADE)''')
     db.commit()
     db.close()
