@@ -200,7 +200,7 @@ def sell(id, price):
         if quantity < inv.quantity:
             db.execute("UPDATE investment SET quantity = :quantity WHERE id = :id", {"quantity": (inv.quantity-quantity), "id": id})
         elif quantity == inv.quantity:
-            db.execute("DELETE FROM investments WHERE id = :id", {"id": id})
+            db.execute("DELETE FROM investment WHERE id = :id", {"id": id})
         print(f"Sold {inv.asset}")
         db.commit()
         db.close()
@@ -236,9 +236,14 @@ def investments():
             curr_data = pdr.get_data_yahoo(syms, start = start)['Close']
             for i in invs:
                 d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
-                price = round(curr_data.iloc[-1][d.symbol], 2)
-                cagr = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol])**(1/3) - 1)*100, 2)
-                roi = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol]) - 1)*100, 2)
+                if str(curr_data.iloc[-1][d.symbol]) == 'nan':
+                    price = round(curr_data.iloc[-2][d.symbol], 2)
+                    cagr = round(((curr_data.iloc[-2][d.symbol]/curr_data.iloc[0][d.symbol])**(1/5) - 1)*100, 2)
+                    roi = round(((curr_data.iloc[-2][d.symbol]/curr_data.iloc[0][d.symbol]) - 1)*100, 2)
+                else:
+                    price = round(curr_data.iloc[-1][d.symbol], 2)
+                    cagr = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol])**(1/5) - 1)*100, 2)
+                    roi = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol]) - 1)*100, 2)
                 if d.symbol[-2:] == 'BO':
                     index = '^BSESN'
                 else:
@@ -316,9 +321,6 @@ def portfolio():
                     symbols.append(a.symbol)
             fig = plt.figure(figsize = (12, 6))
             d = dict(Counter(category))
-            #d['goverment bonds'] = 3
-            #d['corporate bonds'] = 2
-            #d['mid-cap stocks'] = 2
             plt.pie(d.values(), labels = d.keys(), autopct = '%1.1f%%')
             img = BytesIO()
             fig.savefig(img, format = 'png', bbox_inches = 'tight')
@@ -397,10 +399,10 @@ def take_input():
             else:
                 return "<script>alert('Select at least 5 stocks'); window.location = window.history.back();</script>"
         else:
-            stocks = pd.read_csv("stock data.csv")
-            syms = stocks['Symbol']
-            syms = sorted(list(set(syms)))
-            print(len(syms))
+            stocks = db.execute("SELECT * FROM assets").fetchall()
+            syms = [s.symbol for s in list(stocks)]
+            syms = sorted(syms)
+            db.close()
             return render_template("input.html", curruser = username, syms = syms)
     else:
         return "<script>alert('Login first'); window.location = 'http://quantizers.herokuapp.com/login';</script>"
@@ -465,7 +467,13 @@ def optimization(stocks, money):
         start = str(datetime.datetime.utcnow())[:10]
         curr_data = pdr.get_data_yahoo(syms, start = start)['Close']
         # python list comprehension
-        curr_price = [round(price, 2) for price in list(curr_data.iloc[-1])]
+        curr_price = []
+        for col in curr_data.columns:
+            if str(curr_data.iloc[-1][col]) == 'nan':
+                curr_price.append(round(curr_data.iloc[-2][col], 2))
+            else:
+                curr_price.append(round(curr_data.iloc[-1][col], 2))
+        #curr_price = [round(price, 2) for price in list(curr_data.iloc[-1])]
         sharpe_money = [round(w*int(money), 2) for w in sharpe_wts]
         sharpe_units = [int(mon / price) for mon, price in zip(sharpe_money, curr_price)]
         var_money = [round(w*int(money), 2) for w in var_wts]
