@@ -9,6 +9,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
+from dateutil.relativedelta import relativedelta
 from pandas_datareader import data as pdr
 from collections import Counter
 from base64 import b64encode
@@ -85,7 +86,7 @@ def register():
             username = request.form.get("username")
             password = request.form.get("password")
             email = request.form.get("email")
-            date = datetime.datetime.utcnow()
+            date = str(datetime.datetime.utcnow())
             data = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchall()
             if len(data) > 0:
                 db.close()
@@ -162,7 +163,7 @@ def get_assets(category):
     c = category.replace("+", "-")
     data = db.execute("SELECT * FROM assets WHERE type = :type", {"type": c}).fetchall()
     syms = [d.symbol for d in data]
-    today = str(datetime.datetime.utcnow())[:10]
+    today = str(datetime.date.today())
     curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
     prices = []
     for d in data:
@@ -224,8 +225,7 @@ def investments():
             betas = []
             cagrs = []
             rois = []
-            today = str(datetime.datetime.utcnow())[:10]
-            start = str(int(today[:4]) - 5) + today[4:]
+            start = str(datetime.date.today() + relativedelta(years=-5))
             for i in invs:
                 if i.quantity > 0:
                     d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
@@ -358,18 +358,14 @@ def portfolio():
 def display_asset(category, asset, show):
     print(asset)
     a = db.execute("SELECT * FROM assets WHERE name = :name", {"name": asset}).fetchall()[0]
-    today = str(datetime.datetime.utcnow())[:10]
-    month = today[5:7]
+    #today = str(datetime.datetime.utcnow())[:10]
+    #month = today[5:7]
     if show == 'daily':
-        if int(month) <= 3:
-            m = str(int(month) - 3 + 12)
-        else:
-            m = '0' + str(int(month) - 3)
-        last_date = today[:5] + m + '-' + today[8:]
+        last_date = str(datetime.date.today() + relativedelta(months=-3))
     elif show == 'monthly':
-        last_date = str(int(today[:4])-1) + today[4:]
+        last_date = str(datetime.date.today() + relativedelta(months=-12))
     else:
-        last_date = str(int(today[:4])-5) + today[4:]
+        last_date = str(datetime.date.today() + relativedelta(years=-5))
     data = pdr.get_data_yahoo(a.symbol, start = last_date)
     fig = plt.figure(figsize = (12, 6))
     plt.plot(data['Adj Close'])
@@ -416,8 +412,7 @@ def optimization(stocks, money):
         username = session["username"]
         syms = stocks.split(", ")[:-1]
         k = len(syms)
-        today = str(datetime.datetime.utcnow())[:10]
-        start = str(int(today[:4]) - 5) + today[4:]
+        start = str(datetime.date.today() + relativedelta(years=-5))
         #try:
         stock_data = pdr.get_data_yahoo(syms, start = start)['Adj Close']
         returns = stock_data.pct_change()
@@ -467,8 +462,8 @@ def optimization(stocks, money):
                 max_return_wts.append(0)
                 max_return_per_wts.append('0 %')
 
-        start = str(datetime.datetime.utcnow())[:10]
-        curr_data = pdr.get_data_yahoo(syms, start = start)['Close']
+        today = str(datetime.date.today())
+        curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
         # python list comprehension
         curr_price = []
         for col in curr_data.columns:
