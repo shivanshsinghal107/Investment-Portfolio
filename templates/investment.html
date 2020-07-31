@@ -45,11 +45,11 @@
   </nav>
   <br><br>
   <h3>Total Investment: {{total}} INR</h3>
-  {% if net_pl > 0 %}
-    <h3>Net Profit : {{net_pl}} INR</h3>
+  {% if net_pl >= 0 %}
+    <h3 style="color: green;">Net Asset Value (NAV) : {{net_pl}} INR</h3>
   {% else %}
     {% set loss = net_pl * -1 %}
-    <h3>Net Loss : {{loss}} INR</h3>
+    <h3 style="color: red;">Net Asset Value (NAV) : {{loss}} INR</h3>
   {% endif %}
   <br><br>
   <table class="table table-dark">
