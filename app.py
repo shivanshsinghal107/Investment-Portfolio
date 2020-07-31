@@ -326,6 +326,7 @@ def portfolio():
             fig.savefig(img, format = 'png', bbox_inches = 'tight')
             img.seek(0)
             encoded_pc = b64encode(img.getvalue())
+            plt.close(fig)
 
             curr_data = pdr.get_data_yahoo(symbols, start = "2020-01-01")['Adj Close']
             stock_graphs = []
@@ -344,6 +345,7 @@ def portfolio():
                 encoded_graph = b64encode(img1.getvalue())
                 stock_graphs.append(encoded_graph.decode('utf-8'))
                 count += 1
+                plt.close(fig1)
             db.close()
             return render_template("portfolio.html", curruser = username, investments = 'True', pie_chart = encoded_pc.decode('utf-8'), stock_graphs = stock_graphs)
         else:
@@ -379,6 +381,7 @@ def display_asset(category, asset, show):
     fig.savefig(img, format = 'png', bbox_inches = 'tight')
     img.seek(0)
     chart = b64encode(img.getvalue())
+    plt.close(fig)
     curr_price = round(data.Close[-1], 2)
     db.close()
     return render_template("stock.html", asset = asset, category = category, symbol = a.symbol, curr_price = curr_price, currency = a.currency, chart = chart.decode('utf-8'), show = show.title())
