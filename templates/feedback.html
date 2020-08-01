@@ -9,9 +9,49 @@
 {% endblock %}
 
 {% block body %}
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="pos-f-t">
+    <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
+      <div class="bg-dark p-4">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/portfolio">Portfolio</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/input">Optimize</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/portfolio/investment">Investments</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/portfolio/return">Returns</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/logout">Logout</a>
+          </li>
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              More
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="/tnc">Terms & Conditions</a>
+              <a class="dropdown-item" href="/about">About Us</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <nav class="navbar navbar-dark bg-dark">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </nav>
+  </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="desktop-navbar">
     <a class="navbar-brand" href="/">
-      <img src="https://i.ibb.co/dQpq5m2/logo.png" border="0" width="30" height="30" class="d-inline-block align-top">
+      <img src="https://i.ibb.co/GFbrDM6/1596273798134.png" border="0" width="30" height="30" class="d-inline-block align-top">
     </a>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
       <ul class="navbar-nav">
