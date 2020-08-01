@@ -167,7 +167,10 @@ def get_assets(category):
     curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
     prices = []
     for d in data:
-        price = round(curr_data.iloc[-1][d.symbol], 2)
+        if str(curr_data.iloc[-1][d.symbol]) == 'nan':
+            price = round(curr_data.iloc[-2][d.symbol], 2)
+        else:
+            price = round(curr_data.iloc[-1][d.symbol], 2)
         prices.append(price)
     db.close()
     if session.get("logged_in"):
@@ -319,8 +322,10 @@ def portfolio():
                 if i.asset not in assets:
                     assets.append(i.asset)
                     symbols.append(a.symbol)
+            print(symbols)
             fig = plt.figure(figsize = (12, 6))
             d = dict(Counter(category))
+            print(d)
             plt.pie(d.values(), labels = d.keys(), autopct = '%1.1f%%')
             img = BytesIO()
             fig.savefig(img, format = 'png', bbox_inches = 'tight')
@@ -329,6 +334,8 @@ def portfolio():
             plt.close(fig)
 
             curr_data = pdr.get_data_yahoo(symbols, start = "2020-01-01")['Adj Close']
+            if len(invs) == 1:
+                curr_data = pd.DataFrame(curr_data)
             stock_graphs = []
             count = 0
             for c in curr_data.columns:
@@ -346,6 +353,7 @@ def portfolio():
                 stock_graphs.append(encoded_graph.decode('utf-8'))
                 count += 1
                 plt.close(fig1)
+                print("done")
             db.close()
             return render_template("portfolio.html", curruser = username, investments = 'True', pie_chart = encoded_pc.decode('utf-8'), stock_graphs = stock_graphs)
         else:
@@ -492,7 +500,7 @@ def buy_optimized():
         symbols = request.args.getlist("symbols")
         prices = request.args.getlist("curr_price")
         quantities = request.args.getlist("units")
-        date = str(datetime.datetime.utcnow())[:10]
+        date = str(datetime.datetime.utcnow())
         print(symbols)
         print(quantities)
         for i in range(len(symbols)):
