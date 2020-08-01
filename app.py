@@ -87,6 +87,8 @@ def register():
             password = request.form.get("password")
             email = request.form.get("email")
             date = str(datetime.datetime.utcnow())
+            if (username == "") or (password == "") or (email == ""):
+                return "<script>alert('Fill all the fields'); window.location = window.history.back();</script>"
             data = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchall()
             if len(data) > 0:
                 db.close()
@@ -113,6 +115,8 @@ def login():
         if request.method == 'POST':
             username = request.form.get("username")
             password = request.form.get("password")
+            if (username == "") or (password == ""):
+                return "<script>alert('Please fill both fields'); window.location = window.history.back();</script>"
             data = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchall()
             if len(data) > 0:
                 if data[0].password == password:
