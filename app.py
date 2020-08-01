@@ -332,6 +332,7 @@ def portfolio():
             plt.close(fig)
 
             curr_data = pdr.get_data_yahoo(symbols, start = "2020-01-01")['Adj Close']
+            # if there's only one symbol then curr_data is a series not dataframe, & series does not have columns attribute
             if len(symbols) == 1:
                 curr_data = pd.DataFrame(curr_data)
             stock_graphs = []
@@ -460,12 +461,14 @@ def optimization(stocks, money):
                 wt = round(best_wts[i, 0], 2)
                 max_return_wts.append(wt)
                 max_return_per_wts.append(str(int(wt*100)) + " %")
+            markowitz = 'pass'
         except:
             max_return_wts = []
             max_return_per_wts = []
             for i in range(k):
                 max_return_wts.append(0)
-                max_return_per_wts.append('0 %')
+                max_return_per_wts.append('NA')
+            markowitz = 'fail'
 
         today = str(datetime.date.today())
         curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
@@ -484,7 +487,7 @@ def optimization(stocks, money):
         max_return_money = [round(w*int(money), 2) for w in max_return_wts]
         max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
 
-        return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns))
+        return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns), markowitz = markowitz)
         #except:
         #    return render_template("error.html")
     else:

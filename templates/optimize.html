@@ -117,7 +117,7 @@
       <button type="submit" class="btn btn-primary btn-lg btn-block">Buy</button>
     </form>
   <br>
-  <h4>Highly Diversified</h4>
+  <h4>Highly Diversified {% if markowitz == 'fail' %} (The model doesn't satisfy with the pre decided parameters!) {% endif %}</h4>
     <p>Moderate Growth - It is the go-to the portfolio for most people. As it comprises of a well-balanced risk and returns. Coupled with high diversity to tackle the ups and downs of the market.</p>
     <table class="table table-dark">
       <thead>
