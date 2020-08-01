@@ -322,10 +322,8 @@ def portfolio():
                 if i.asset not in assets:
                     assets.append(i.asset)
                     symbols.append(a.symbol)
-            print(symbols)
             fig = plt.figure(figsize = (12, 6))
             d = dict(Counter(category))
-            print(d)
             plt.pie(d.values(), labels = d.keys(), autopct = '%1.1f%%')
             img = BytesIO()
             fig.savefig(img, format = 'png', bbox_inches = 'tight')
@@ -334,7 +332,7 @@ def portfolio():
             plt.close(fig)
 
             curr_data = pdr.get_data_yahoo(symbols, start = "2020-01-01")['Adj Close']
-            if len(invs) == 1:
+            if len(symbols) == 1:
                 curr_data = pd.DataFrame(curr_data)
             stock_graphs = []
             count = 0
@@ -353,7 +351,6 @@ def portfolio():
                 stock_graphs.append(encoded_graph.decode('utf-8'))
                 count += 1
                 plt.close(fig1)
-                print("done")
             db.close()
             return render_template("portfolio.html", curruser = username, investments = 'True', pie_chart = encoded_pc.decode('utf-8'), stock_graphs = stock_graphs)
         else:
