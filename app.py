@@ -230,8 +230,8 @@ def investments():
             total = 0
             syms = []
             betas = []
-            cagrs = []
-            rois = []
+            #cagrs = []
+            #rois = []
             start = str(datetime.date.today() + relativedelta(years=-5))
             for i in invs:
                 if i.quantity > 0:
@@ -245,12 +245,12 @@ def investments():
                 d = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
                 if str(curr_data.iloc[-1][d.symbol]) == 'nan':
                     price = round(curr_data.iloc[-2][d.symbol], 2)
-                    cagr = round(((curr_data.iloc[-2][d.symbol]/curr_data.iloc[0][d.symbol])**(1/5) - 1)*100, 2)
-                    roi = round(((curr_data.iloc[-2][d.symbol]/curr_data.iloc[0][d.symbol]) - 1)*100, 2)
+                    #cagr = round(((curr_data.iloc[-2][d.symbol]/curr_data.iloc[0][d.symbol])**(1/5) - 1)*100, 2)
+                    #roi = round(((curr_data.iloc[-2][d.symbol]/curr_data.iloc[0][d.symbol]) - 1)*100, 2)
                 else:
                     price = round(curr_data.iloc[-1][d.symbol], 2)
-                    cagr = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol])**(1/5) - 1)*100, 2)
-                    roi = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol]) - 1)*100, 2)
+                    #cagr = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol])**(1/5) - 1)*100, 2)
+                    #roi = round(((curr_data.iloc[-1][d.symbol]/curr_data.iloc[0][d.symbol]) - 1)*100, 2)
                 if d.symbol[-2:] == 'BO':
                     index = '^BSESN'
                 else:
@@ -262,8 +262,8 @@ def investments():
                 var = cov[index].iloc[1]
                 beta = round(covar/var, 2)
                 betas.append(beta)
-                rois.append(f"{roi}%")
-                cagrs.append(cagr)
+                #rois.append(f"{roi}%")
+                #cagrs.append(cagr)
                 prices.append(price)
             for i in range(len(invs)):
                 if invs[i].quantity > 0:
@@ -275,10 +275,12 @@ def investments():
                     dates.append(date)
                     total += invs[i].buy_price * invs[i].quantity
             db.close()
-            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, type = type, pchange = pchange, betas = betas, cagrs = cagrs, rois = rois, net_pl = int(net_pl), total = int(total))
+            roi = round((net_pl/total)*100, 2)
+            cagr = round(((1 + net_pl/total)**(1/5)-1)*100, 2)
+            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, type = type, pchange = pchange, betas = betas, net_pl = int(net_pl), total = int(total), roi = roi, cagr = cagr)
         else:
             db.close()
-            return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], type = [], pchange = [], betas = [], cagrs = [], rois = [], net_pl = 0, total = 0)
+            return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], type = [], pchange = [], betas = [], net_pl = 0, total = 0, roi = 0, cagr = 0)
     else:
         return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
 
