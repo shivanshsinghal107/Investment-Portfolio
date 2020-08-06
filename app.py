@@ -400,10 +400,25 @@ def display_asset(category, asset, show):
     db.close()
     return render_template("stock.html", asset = asset, category = category, symbol = a.symbol, curr_price = curr_price, currency = a.currency, chart = chart.decode('utf-8'), show = show.title())
 
-@app.route("/input", methods = ['GET', 'POST'])
+@app.route("/input/featured", methods = ['GET', 'POST'])
 def take_input():
     if session.get("logged_in"):
         username = session["username"]
+        type = 'fixed'
+        if request.method == 'POST':
+            money = request.form.get("money")
+            return redirect(f"https://quantizers.herokuapp.com/optimization/{type}/{stock_str}/{money}")
+        else:
+            syms = ['ALEMBICLTD.NS', 'CHAMANSEQ.BO', 'DLTNCBL.BO', 'ESTER.NS', 'FAZE3Q.BO', 'FOODSIN.BO', 'GANESHBE.BO', 'INTENTECH.BO', 'JPASSOCIAT.BO', 'NEOINFRA.BO', 'RAMANEWS.NS', 'SALSTEEL.NS', 'SEAMECLTD.BO', 'TATACHEM.NS', 'TIGLOB.BO', 'UFO.NS', 'UNIDT.BO', 'UNISON.BO', 'YUKEN.BO']
+            return render_template("input.html", curruser = username, type = type, syms = syms)
+    else:
+        return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
+
+@app.route("/input/custom", methods = ['GET', 'POST'])
+def take_input():
+    if session.get("logged_in"):
+        username = session["username"]
+        type = 'custom'
         if request.method == 'POST':
             money = request.form.get("money")
             stocks = request.form.getlist("stocks")
@@ -412,7 +427,7 @@ def take_input():
                 for s in stocks:
                     stock_str += s + ", "
                 print(stock_str)
-                return redirect(f"https://quantizers.herokuapp.com/optimization/{stock_str}/{money}")
+                return redirect(f"https://quantizers.herokuapp.com/optimization/{type}/{stock_str}/{money}")
             else:
                 return "<script>alert('Select at least 5 stocks'); window.location = window.history.back();</script>"
         else:
@@ -420,94 +435,125 @@ def take_input():
             syms = [s.symbol for s in list(stocks)]
             syms = sorted(syms)
             db.close()
-            return render_template("input.html", curruser = username, syms = syms)
+            return render_template("input.html", curruser = username, type = type, syms = syms)
     else:
         return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
 
-@app.route("/optimization/<stocks>/<money>", methods = ['GET', 'POST'])
-def optimization(stocks, money):
+@app.route("/optimization/<type>/<stocks>/<money>", methods = ['GET', 'POST'])
+def optimization(type, stocks, money):
     if session.get("logged_in"):
         username = session["username"]
         syms = stocks.split(", ")[:-1]
         k = len(syms)
-        start = str(datetime.date.today() + relativedelta(years=-5))
-        #try:
-        stock_data = pdr.get_data_yahoo(syms, start = start)['Adj Close']
-        returns = stock_data.pct_change()
-        #mean_daily_returns = np.array(returns.mean()).reshape(-1, 1)
-        cov = returns.cov()
-        stds = np.array(returns.std()).reshape(-1, 1)
-        product_std = np.dot(stds, stds.T)
-        cov_mat = np.array(cov)
-        corr = cov_mat / product_std
-        ret = (stock_data.iloc[-1]/stock_data.iloc[0] - 1)
-        annual_return = np.array(ret).reshape(-1, 1)
+        if 'custom' in type:
+            start = str(datetime.date.today() + relativedelta(years=-5))
+            #try:
+            stock_data = pdr.get_data_yahoo(syms, start = start)['Adj Close']
+            returns = stock_data.pct_change()
+            #mean_daily_returns = np.array(returns.mean()).reshape(-1, 1)
+            cov = returns.cov()
+            stds = np.array(returns.std()).reshape(-1, 1)
+            product_std = np.dot(stds, stds.T)
+            cov_mat = np.array(cov)
+            corr = cov_mat / product_std
+            ret = (stock_data.iloc[-1]/stock_data.iloc[0] - 1)
+            annual_return = np.array(ret).reshape(-1, 1)
 
-        # max sharpe ratio
-        risk_free_rate = 0.04
-        best_wts = maximize_sharpe_ratio(annual_return, risk_free_rate, cov, k)
-        sharpe_wts = []
-        sharpe_per_wts = []
-        for i in range(len(best_wts)):
-            wt = round(best_wts[i, 0], 2)
-            sharpe_wts.append(wt)
-            sharpe_per_wts.append(str(int(wt*100)) + " %")
-
-        # minimum portfolio variance
-        best_wts = minimize_portfolio_variance(corr, stds, annual_return, k)
-        var_wts = []
-        var_per_wts = []
-        for i in range(len(best_wts)):
-            wt = round(best_wts[i, 0], 2)
-            var_wts.append(wt)
-            var_per_wts.append(str(int(wt*100)) + " %")
-
-        # monthly, quarterly, half-yearly, yearly
-        try:
-            min_port_var = 1.30
-            max_port_var = 1.40
-            best_wts = maximize_annual_return(stock_data, stds, corr, annual_return, min_port_var, max_port_var, k)
-            max_return_wts = []
-            max_return_per_wts = []
+            # max sharpe ratio
+            risk_free_rate = 0.04
+            best_wts = maximize_sharpe_ratio(annual_return, risk_free_rate, cov, k)
+            sharpe_wts = []
+            sharpe_per_wts = []
             for i in range(len(best_wts)):
                 wt = round(best_wts[i, 0], 2)
-                max_return_wts.append(wt)
-                max_return_per_wts.append(str(int(wt*100)) + " %")
-            markowitz = 'pass'
-        except:
-            max_return_wts = []
-            max_return_per_wts = []
-            for i in range(k):
-                max_return_wts.append(0)
-                max_return_per_wts.append('NA')
-            markowitz = 'fail'
+                sharpe_wts.append(wt)
+                sharpe_per_wts.append(str(int(wt*100)) + " %")
 
-        today = str(datetime.date.today())
-        curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
-        if curr_data.empty:
-            today = str(datetime.date.today() + relativedelta(days=-1))
-            curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
-        if curr_data.empty:
-            today = str(datetime.date.today() + relativedelta(days=-2))
-            curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
-        # python list comprehension
-        curr_price = []
-        for col in curr_data.columns:
-            if str(curr_data.iloc[-1][col]) == 'nan':
-                curr_price.append(round(curr_data.iloc[-2][col], 2))
-            else:
-                curr_price.append(round(curr_data.iloc[-1][col], 2))
-        #curr_price = [round(price, 2) for price in list(curr_data.iloc[-1])]
-        sharpe_money = [round(w*int(money), 2) for w in sharpe_wts]
-        sharpe_units = [int(mon / price) for mon, price in zip(sharpe_money, curr_price)]
-        var_money = [round(w*int(money), 2) for w in var_wts]
-        var_units = [int(mon / price) for mon, price in zip(var_money, curr_price)]
-        max_return_money = [round(w*int(money), 2) for w in max_return_wts]
-        max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
+            # minimum portfolio variance
+            best_wts = minimize_portfolio_variance(corr, stds, annual_return, k)
+            var_wts = []
+            var_per_wts = []
+            for i in range(len(best_wts)):
+                wt = round(best_wts[i, 0], 2)
+                var_wts.append(wt)
+                var_per_wts.append(str(int(wt*100)) + " %")
 
-        return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns), markowitz = markowitz)
-        #except:
-        #    return render_template("error.html")
+            # monthly, quarterly, half-yearly, yearly
+            try:
+                min_port_var = 1.30
+                max_port_var = 1.40
+                best_wts = maximize_annual_return(stock_data, stds, corr, annual_return, min_port_var, max_port_var, k)
+                max_return_wts = []
+                max_return_per_wts = []
+                for i in range(len(best_wts)):
+                    wt = round(best_wts[i, 0], 2)
+                    max_return_wts.append(wt)
+                    max_return_per_wts.append(str(int(wt*100)) + " %")
+                markowitz = 'pass'
+            except:
+                max_return_wts = []
+                max_return_per_wts = []
+                for i in range(k):
+                    max_return_wts.append(0)
+                    max_return_per_wts.append('NA')
+                markowitz = 'fail'
+
+            today = str(datetime.date.today())
+            curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+            if curr_data.empty:
+                today = str(datetime.date.today() + relativedelta(days=-1))
+                curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+            if curr_data.empty:
+                today = str(datetime.date.today() + relativedelta(days=-2))
+                curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+            # python list comprehension
+            curr_price = []
+            for col in curr_data.columns:
+                if str(curr_data.iloc[-1][col]) == 'nan':
+                    curr_price.append(round(curr_data.iloc[-2][col], 2))
+                else:
+                    curr_price.append(round(curr_data.iloc[-1][col], 2))
+            #curr_price = [round(price, 2) for price in list(curr_data.iloc[-1])]
+            sharpe_money = [round(w*int(money), 2) for w in sharpe_wts]
+            sharpe_units = [int(mon / price) for mon, price in zip(sharpe_money, curr_price)]
+            var_money = [round(w*int(money), 2) for w in var_wts]
+            var_units = [int(mon / price) for mon, price in zip(var_money, curr_price)]
+            max_return_money = [round(w*int(money), 2) for w in max_return_wts]
+            max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
+
+            return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns), markowitz = markowitz)
+            #except:
+            #    return render_template("error.html")
+        else:
+            sharpe_wts = [0.01044955, 0.00375931, 0.04997289, 0.01814981, 0.02636148, 0.00595881, 0.02685395, 0.05325872,       0.00189206, 0.01823042, 0.04771175, 0.01185621, 0.21598442, 0.06464534, 0.07794152, 0.00168115, 0.06465215, 0.03386421, 0.26677625]
+            var_wts = [0.08983601, 0.01236892, 0.09185726, 0.00095887, 0.03411957, 0.00190319, 0.02175183, 0.03961878, 0.02691199, 0.04167855, 0.0071663, 0.02515293, 0.00234045, 0.00363464, 0.0214765, 0.05533194, 0.00866128, 0.49306767, 0.02216332]
+            max_return_wts = [0.00607439, 0.02322509, 0.01272574, 0.03661285, 0.08725901, 0.001364, 0.02823295, 0.04651663, 0.00118729, 0.02014126, 0.01852853, 0.00715989, 0.05175595, 0.00894472, 0.09939796, 0.0022746, 0.09976884, 0.1461948, 0.3026355]
+
+            today = str(datetime.date.today())
+            curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+            if curr_data.empty:
+                today = str(datetime.date.today() + relativedelta(days=-1))
+                curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+            if curr_data.empty:
+                today = str(datetime.date.today() + relativedelta(days=-2))
+                curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+            curr_data = curr_data[syms]
+            # python list comprehension
+            curr_price = []
+            for col in curr_data.columns:
+                if str(curr_data.iloc[-1][col]) == 'nan':
+                    curr_price.append(round(curr_data.iloc[-2][col], 2))
+                else:
+                    curr_price.append(round(curr_data.iloc[-1][col], 2))
+            #curr_price = [round(price, 2) for price in list(curr_data.iloc[-1])]
+            sharpe_money = [round(w*int(money), 2) for w in sharpe_wts]
+            sharpe_units = [int(mon / price) for mon, price in zip(sharpe_money, curr_price)]
+            var_money = [round(w*int(money), 2) for w in var_wts]
+            var_units = [int(mon / price) for mon, price in zip(var_money, curr_price)]
+            max_return_money = [round(w*int(money), 2) for w in max_return_wts]
+            max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
+
+            return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = syms, markowitz = 'pass')
     else:
         return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
 

@@ -85,10 +85,18 @@
   <form method="POST">
     <label for="">How much money do you want to invest?</label>
     <input type="number" name="money" class="form-control mb-2" placeholder="Money" min="1000" value="1000">
-    {% for s in syms %}
-      <input type="checkbox" name="stocks" value="{{s}}">
-      <label for="stocks">{{s}}</label><br>
-    {% endfor %}
+    {% if type == 'custom' %}
+      {% for s in syms %}
+        <input type="checkbox" name="stocks" value="{{s}}">
+        <label for="stocks">{{s}}</label><br>
+      {% endfor %}
+      {% else %}
+        <ul>
+          {% for s in syms %}
+            <li>{{s}}</li>
+          {% endfor %}
+        </ul>
+    {% endif %}
     <button type="submit" class="btn btn-primary mb-2">Optimize</button>
   </form>
 {% endblock %}
