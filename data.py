@@ -44,6 +44,13 @@ def insert_assets():
             print(f"{count}. {name} Inserted")
             count += 1
 
+    syms = ['ALEMBICLTD.NS', 'CHAMANSEQ.BO', 'DLTNCBL.BO', 'ESTER.NS', 'FAZE3Q.BO', 'FOODSIN.BO', 'GANESHBE.BO', 'INTENTECH.BO', 'JPASSOCIAT.BO', 'NEOINFRA.BO', 'RAMANEWS.NS', 'SALSTEEL.NS', 'SEAMECLTD.BO', 'TATACHEM.NS', 'TIGLOB.BO', 'UFO.NS', 'UNIDT.BO', 'UNISON.BO', 'YUKEN.BO']
+    type = 'small-cap'
+    currency = 'INR'
+    for s in syms:
+        db.execute("INSERT INTO assets (type, name, currency, symbol) VALUES (:type, :name, :currency, :symbol)", {"type": type, "name": s, "currency": currency, "symbol": s})
+        print(f"{s} inserted")
+
     db.commit()
     db.close()
 
@@ -54,4 +61,14 @@ def create_tables():
     if len(table_data) <= 0:
         insert_assets()
 
-create_tables()
+#create_tables()
+
+syms = ['ALEMBICLTD.NS', 'CHAMANSEQ.BO', 'DLTNCBL.BO', 'ESTER.NS', 'FAZE3Q.BO', 'FOODSIN.BO', 'GANESHBE.BO', 'INTENTECH.BO', 'JPASSOCIAT.BO', 'NEOINFRA.BO', 'RAMANEWS.NS', 'SALSTEEL.NS', 'SEAMECLTD.BO', 'TATACHEM.NS', 'TIGLOB.BO', 'UFO.NS', 'UNIDT.BO', 'UNISON.BO', 'YUKEN.BO']
+type = 'small-cap'
+currency = 'INR'
+for s in syms:
+    db.execute("INSERT INTO assets (type, name, currency, symbol) VALUES (:type, :name, :currency, :symbol)", {"type": type, "name": s, "currency": currency, "symbol": s})
+    print(f"{s} inserted")
+
+db.commit()
+db.close()
