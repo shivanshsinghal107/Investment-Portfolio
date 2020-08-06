@@ -228,6 +228,7 @@ def investments():
             pchange = []
             net_pl = 0
             total = 0
+            total_inv = 0
             syms = []
             betas = []
             #cagrs = []
@@ -269,18 +270,23 @@ def investments():
                 if invs[i].quantity > 0:
                     p = prices[i]
                     pchange.append(round((1 - invs[i].buy_price/p)*100, 2))
-                    net_pl += (p - invs[i].buy_price) * invs[i].quantity
+                    net_pl += p * invs[i].quantity
                     da = invs[i].date[:10].split("-")
                     date = f"{da[2]}-{da[1]}-{da[0]}"
                     dates.append(date)
                     total += invs[i].buy_price * invs[i].quantity
+            total_inv = total
+            rets = db.execute("SELECT * FROM returns WHERE username = :username", {"username": username}).fetchall()
+            if len(rets) > 0:
+                for r in rets:
+                    total_inv += r.buy_price * r.quantity
             db.close()
             roi = round((net_pl/total)*100, 2)
             cagr = round(((1 + net_pl/total)**(1/5)-1)*100, 2)
-            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, type = type, pchange = pchange, betas = betas, net_pl = int(net_pl), total = int(total), roi = roi, cagr = cagr)
+            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, type = type, pchange = pchange, betas = betas, net_pl = int(net_pl), total = int(total), total_inv = total_inv, roi = roi, cagr = cagr)
         else:
             db.close()
-            return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], type = [], pchange = [], betas = [], net_pl = 0, total = 0, roi = 0, cagr = 0)
+            return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], type = [], pchange = [], betas = [], net_pl = 0, total = 0, total_inv = 0, roi = 0, cagr = 0)
     else:
         return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
 
