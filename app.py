@@ -281,9 +281,9 @@ def investments():
                 for r in rets:
                     total_inv += r.buy_price * r.quantity
             db.close()
-            roi = round((net_pl/total)*100, 2)
-            cagr = round(((1 + net_pl/total)**(1/5)-1)*100, 2)
-            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, type = type, pchange = pchange, betas = betas, net_pl = int(net_pl), total = int(total), total_inv = total_inv, roi = roi, cagr = cagr)
+            roi = round(((net_pl-total)/total)*100, 2)
+            cagr = round(((net_pl/total)**(1/5)-1)*100, 2)
+            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, type = type, pchange = pchange, betas = betas, net_pl = int(net_pl), total = int(total), total_inv = int(total_inv), roi = roi, cagr = cagr)
         else:
             db.close()
             return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], type = [], pchange = [], betas = [], net_pl = 0, total = 0, total_inv = 0, roi = 0, cagr = 0)
