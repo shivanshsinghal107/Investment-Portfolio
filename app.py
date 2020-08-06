@@ -405,11 +405,15 @@ def take_input_featured():
     if session.get("logged_in"):
         username = session["username"]
         type = 'fixed'
+        syms = ['ALEMBICLTD.NS', 'CHAMANSEQ.BO', 'DLTNCBL.BO', 'ESTER.NS', 'FAZE3Q.BO', 'FOODSIN.BO', 'GANESHBE.BO', 'INTENTECH.BO', 'JPASSOCIAT.BO', 'NEOINFRA.BO', 'RAMANEWS.NS', 'SALSTEEL.NS', 'SEAMECLTD.BO', 'TATACHEM.NS', 'TIGLOB.BO', 'UFO.NS', 'UNIDT.BO', 'UNISON.BO', 'YUKEN.BO']
         if request.method == 'POST':
             money = request.form.get("money")
+            stock_str = ""
+            for s in syms:
+                stock_str += s + ", "
+            print(stock_str)
             return redirect(f"https://quantizers.herokuapp.com/optimization/{type}/{stock_str}/{money}")
         else:
-            syms = ['ALEMBICLTD.NS', 'CHAMANSEQ.BO', 'DLTNCBL.BO', 'ESTER.NS', 'FAZE3Q.BO', 'FOODSIN.BO', 'GANESHBE.BO', 'INTENTECH.BO', 'JPASSOCIAT.BO', 'NEOINFRA.BO', 'RAMANEWS.NS', 'SALSTEEL.NS', 'SEAMECLTD.BO', 'TATACHEM.NS', 'TIGLOB.BO', 'UFO.NS', 'UNIDT.BO', 'UNISON.BO', 'YUKEN.BO']
             return render_template("input.html", curruser = username, type = type, syms = syms)
     else:
         return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
@@ -526,8 +530,20 @@ def optimization(type, stocks, money):
             #    return render_template("error.html")
         else:
             sharpe_wts = [0.01044955, 0.00375931, 0.04997289, 0.01814981, 0.02636148, 0.00595881, 0.02685395, 0.05325872,       0.00189206, 0.01823042, 0.04771175, 0.01185621, 0.21598442, 0.06464534, 0.07794152, 0.00168115, 0.06465215, 0.03386421, 0.26677625]
+            sharpe_per_wts = []
+            for i in range(len(sharpe_wts)):
+                wt = round(sharpe_wts[i], 2)
+                sharpe_per_wts.append(str(int(wt*100)) + " %")
             var_wts = [0.08983601, 0.01236892, 0.09185726, 0.00095887, 0.03411957, 0.00190319, 0.02175183, 0.03961878, 0.02691199, 0.04167855, 0.0071663, 0.02515293, 0.00234045, 0.00363464, 0.0214765, 0.05533194, 0.00866128, 0.49306767, 0.02216332]
+            var_per_wts = []
+            for i in range(len(var_wts)):
+                wt = round(var_wts[i], 2)
+                var_per_wts.append(str(int(wt*100)) + " %")
             max_return_wts = [0.00607439, 0.02322509, 0.01272574, 0.03661285, 0.08725901, 0.001364, 0.02823295, 0.04651663, 0.00118729, 0.02014126, 0.01852853, 0.00715989, 0.05175595, 0.00894472, 0.09939796, 0.0022746, 0.09976884, 0.1461948, 0.3026355]
+            max_return_per_wts = []
+            for i in range(len(max_return_wts)):
+                wt = round(max_return_wts[i], 2)
+                max_return_per_wts.append(str(int(wt*100)) + " %")
 
             today = str(datetime.date.today())
             curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
@@ -542,7 +558,12 @@ def optimization(type, stocks, money):
             curr_price = []
             for col in curr_data.columns:
                 if str(curr_data.iloc[-1][col]) == 'nan':
-                    curr_price.append(round(curr_data.iloc[-2][col], 2))
+                    try:
+                        curr_price.append(round(curr_data.iloc[-2][col], 2))
+                    except:
+                        p = pdr.get_data_yahoo(col, start = str(datetime.date.today() + relativedelta(months=-1)))['Close']
+                        #print(p.tail())
+                        curr_price.append(round(p.iloc[-1], 2))
                 else:
                     curr_price.append(round(curr_data.iloc[-1][col], 2))
             #curr_price = [round(price, 2) for price in list(curr_data.iloc[-1])]
