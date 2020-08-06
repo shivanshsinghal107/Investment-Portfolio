@@ -401,7 +401,7 @@ def display_asset(category, asset, show):
     return render_template("stock.html", asset = asset, category = category, symbol = a.symbol, curr_price = curr_price, currency = a.currency, chart = chart.decode('utf-8'), show = show.title())
 
 @app.route("/input/featured", methods = ['GET', 'POST'])
-def take_input():
+def take_input_featured():
     if session.get("logged_in"):
         username = session["username"]
         type = 'fixed'
@@ -415,7 +415,7 @@ def take_input():
         return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
 
 @app.route("/input/custom", methods = ['GET', 'POST'])
-def take_input():
+def take_input_custom():
     if session.get("logged_in"):
         username = session["username"]
         type = 'custom'
