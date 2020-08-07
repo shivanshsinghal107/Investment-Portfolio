@@ -404,7 +404,7 @@ def display_asset(category, asset, show):
 def take_input_featured():
     if session.get("logged_in"):
         username = session["username"]
-        type = 'fixed'
+        type = 'featured'
         syms = ['ALEMBICLTD.NS', 'CHAMANSEQ.BO', 'DLTNCBL.BO', 'ESTER.NS', 'FAZE3Q.BO', 'FOODSIN.BO', 'GANESHBE.BO', 'INTENTECH.BO', 'JPASSOCIAT.BO', 'NEOINFRA.BO', 'RAMANEWS.NS', 'SALSTEEL.NS', 'SEAMECLTD.BO', 'TATACHEM.NS', 'TIGLOB.BO', 'UFO.NS', 'UNIDT.BO', 'UNISON.BO', 'YUKEN.BO']
         if request.method == 'POST':
             money = request.form.get("money")
@@ -559,7 +559,12 @@ def optimization(type, stocks, money):
             for col in curr_data.columns:
                 if str(curr_data.iloc[-1][col]) == 'nan':
                     try:
-                        curr_price.append(round(curr_data.iloc[-2][col], 2))
+                        if str(curr_data.iloc[-2][col]) != 'nan':
+                            curr_price.append(round(curr_data.iloc[-2][col], 2))
+                        else:
+                            p = pdr.get_data_yahoo(col, start = str(datetime.date.today() + relativedelta(months=-1)))['Close']
+                            #print(p.tail())
+                            curr_price.append(round(p.iloc[-1], 2))
                     except:
                         p = pdr.get_data_yahoo(col, start = str(datetime.date.today() + relativedelta(months=-1)))['Close']
                         #print(p.tail())
