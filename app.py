@@ -169,10 +169,24 @@ def get_assets(category):
     syms = [d.symbol for d in data]
     today = str(datetime.date.today())
     curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+    if curr_data.empty:
+        today = str(datetime.date.today() + relativedelta(days=-1))
+        curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
+    if curr_data.empty:
+        today = str(datetime.date.today() + relativedelta(days=-2))
+        curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
     prices = []
     for d in data:
         if str(curr_data.iloc[-1][d.symbol]) == 'nan':
-            price = round(curr_data.iloc[-2][d.symbol], 2)
+            try:
+                if str(curr_data.iloc[-2][d.symbol]) != 'nan':
+                    prices.append(round(curr_data.iloc[-2][d.symbol], 2))
+                else:
+                    p = pdr.get_data_yahoo(d.symbol, start = str(datetime.date.today() + relativedelta(months=-1)))['Close']
+                    prices.append(round(p.iloc[-1], 2))
+            except:
+                p = pdr.get_data_yahoo(d.symbol, start = str(datetime.date.today() + relativedelta(months=-1)))['Close']
+                prices.append(round(p.iloc[-1], 2))
         else:
             price = round(curr_data.iloc[-1][d.symbol], 2)
         prices.append(price)
