@@ -26,3 +26,6 @@ We have implemented following portfolio optimization techniques from scratch -
 - Python
 - HTML
 - CSS
+
+## Team Quantizers
+<img src="https://github.com/shivanshsinghal107/Investment-Portfolio/blob/master/team/quantizers.jpeg" alt="quantizers" height="900" width="700">
