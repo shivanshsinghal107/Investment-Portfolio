@@ -16,7 +16,7 @@ We have implemented following portfolio optimization techniques from scratch -
 - Optimize Portfolio
 - Obtain Live Stats
 
-<img src="https://github.com/shivanshsinghal107/Investment-Portfolio/blob/master/media/sip-by-quantizers.jpeg" height="720" width="450"> <img src="https://github.com/shivanshsinghal107/Investment-Portfolio/blob/master/media/services-provided.jpeg" height="720" width="450">
+<img src="https://github.com/shivanshsinghal107/Investment-Portfolio/blob/master/media/sip-by-quantizers.jpeg" height="560" width="350"> <img src="https://github.com/shivanshsinghal107/Investment-Portfolio/blob/master/media/services-provided.jpeg" height="560" width="350">
 
 ## Tech Stack
 ### Tools & Technologies
