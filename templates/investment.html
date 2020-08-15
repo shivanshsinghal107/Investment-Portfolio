@@ -99,9 +99,8 @@
     {% set diff = net_pl - total %}
     <h3>Net Asset Value (NAV) : {{net_pl}} INR <span style="color: green;">(+{{diff}})</span></h3>
   {% else %}
-    {% set loss = net_pl * -1 %}
     {% set diff = total - net_pl %}
-    <h3>Net Asset Value (NAV) : {{loss}} INR <span style="color: red;">(-{{diff}})</span></h3>
+    <h3>Net Asset Value (NAV) : {{net_pl}} INR <span style="color: red;">(-{{diff}})</span></h3>
   {% endif %}
   <br>
   <h3>Return on Investment (ROI): {{roi}} %</h3>
