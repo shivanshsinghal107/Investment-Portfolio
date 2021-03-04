@@ -283,7 +283,7 @@ def investments():
             for i in range(len(invs)):
                 if invs[i].quantity > 0:
                     p = prices[i]
-                    pchange.append(round((1 - invs[i].buy_price/p)*100, 2))
+                    pchange.append(round((1 - p/invs[i].buy_price)*100, 2))
                     net_pl += p * invs[i].quantity
                     da = invs[i].date[:10].split("-")
                     date = f"{da[2]}-{da[1]}-{da[0]}"
