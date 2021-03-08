@@ -1,9 +1,14 @@
 import os
+import json
 import smtplib
 import datetime
 import yfinance as yf
 import numpy as np
 import pandas as pd
+
+import plotly
+import plotly.graph_objs as go
+
 # these below two lines are for avoiding a runtime error
 import matplotlib
 matplotlib.use('Agg')
@@ -399,20 +404,18 @@ def display_asset(category, asset, show):
     else:
         last_date = str(datetime.date.today() + relativedelta(years=-5))
     data = pdr.get_data_yahoo(a.symbol, start = last_date)
-    fig = plt.figure(figsize = (12, 6))
-    plt.plot(data['Adj Close'])
-    plt.fill_between(data.index, data['Adj Close'])
-    plt.xlabel('DATE')
-    plt.ylabel('PRICE')
-    plt.xticks(rotation = 45)
-    img = BytesIO()
-    fig.savefig(img, format = 'png', bbox_inches = 'tight')
-    img.seek(0)
-    chart = b64encode(img.getvalue())
-    plt.close(fig)
     curr_price = round(data.Close[-1], 2)
     db.close()
-    return render_template("stock.html", asset = asset, category = category, symbol = a.symbol, curr_price = curr_price, currency = a.currency, chart = chart.decode('utf-8'), show = show.title())
+
+    trace = go.Scatter(
+        x = data.index,
+        y = data['Adj Close'],
+        fill = 'tozeroy'
+    )
+    data = [trace]
+    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template("stock.html", graphJSON = graphJSON, asset = asset, category = category, symbol = a.symbol, curr_price = curr_price, currency = a.currency, show = show.title())
 
 @app.route("/input/featured", methods = ['GET', 'POST'])
 def take_input_featured():
