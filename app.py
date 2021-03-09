@@ -79,7 +79,7 @@ def index():
         else:
             return render_template("index.html", loginstatus = "False")
     else:
-        category = request.form.get("asset").lower().replace("-", "+")
+        category = request.form.get("asset")
         return redirect(f"/{category}")
 
 @app.route("/register", methods = ['GET', 'POST'])
@@ -169,8 +169,7 @@ def feedback():
 
 @app.route("/<category>", methods = ['GET', 'POST'])
 def get_assets(category):
-    c = category.replace("+", "-")
-    data = db.execute("SELECT * FROM assets WHERE type = :type", {"type": c}).fetchall()
+    data = db.execute("SELECT * FROM assets WHERE type = :type", {"type": category}).fetchall()
     syms = [d.symbol for d in data]
     today = str(datetime.date.today())
     curr_data = pdr.get_data_yahoo(syms, start = today)['Close']
@@ -197,9 +196,9 @@ def get_assets(category):
         prices.append(price)
     db.close()
     if session.get("logged_in"):
-        return render_template("asset.html", loginstatus = "True", curruser = session["username"], category = c.title(), data = data, prices = prices)
+        return render_template("asset.html", loginstatus = "True", curruser = session["username"], category = category.title(), data = data, prices = prices)
     else:
-        return render_template("asset.html", loginstatus = "False", category = c.title(), data = data, prices = prices)
+        return render_template("asset.html", loginstatus = "False", category = category.title(), data = data, prices = prices)
 
 @app.route("/buy/<id>/<price>", methods = ['GET', 'POST'])
 def buy(id, price):
@@ -344,47 +343,51 @@ def portfolio():
         username = session["username"]
         invs = db.execute("SELECT * FROM investment WHERE username = :username", {"username": username}).fetchall()
         if len(invs) > 0:
-            category = []
+            # category = []
             assets = []
             symbols = []
+            investments = {}
             for i in invs:
+                investments[i.asset] = 0
                 a = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
-                category.append(a.type)
+                # category.append(a.type)
                 if i.asset not in assets:
                     assets.append(i.asset)
                     symbols.append(a.symbol)
-            fig = plt.figure(figsize = (12, 6))
-            d = dict(Counter(category))
-            plt.pie(d.values(), labels = d.keys(), autopct = '%1.1f%%')
-            img = BytesIO()
-            fig.savefig(img, format = 'png', bbox_inches = 'tight')
-            img.seek(0)
-            encoded_pc = b64encode(img.getvalue())
-            plt.close(fig)
+            # d = dict(Counter(category))
+
+            for i in invs:
+                investments[i.asset] += i.buy_price * i.quantity
+            # print(investments)
+
+            trace = go.Pie(
+                labels = list(investments.keys()),
+                values = list(investments.values()),
+                textposition = 'outside',
+                textinfo = 'percent+label',
+            )
+            data = [trace]
+            pie_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
 
             curr_data = pdr.get_data_yahoo(symbols, start = "2020-01-01")['Adj Close']
             # if there's only one symbol then curr_data is a series not dataframe, & series does not have columns attribute
             if len(symbols) == 1:
                 curr_data = pd.DataFrame(curr_data)
             stock_graphs = []
-            count = 0
+            # count = 0
             for c in curr_data.columns:
-                fig1 = plt.figure(figsize = (12, 6))
-                plt.plot(curr_data[c], c = np.random.rand(3,))
-                plt.xlabel('DATE')
-                plt.ylabel('PRICE')
-                plt.title(assets[count].upper())
-                #plt.fill_between(curr_data.index, curr_data[c])
-                plt.grid()
-                img1 = BytesIO()
-                fig1.savefig(img1, format = 'png', bbox_inches = 'tight')
-                img1.seek(0)
-                encoded_graph = b64encode(img1.getvalue())
-                stock_graphs.append(encoded_graph.decode('utf-8'))
-                count += 1
-                plt.close(fig1)
+                trace = go.Scatter(
+                    x = curr_data.index,
+                    y = curr_data[c],
+                    name = c,
+                    fill = 'tozeroy'
+                )
+                stock_graphs.append(trace)
             db.close()
-            return render_template("portfolio.html", curruser = username, investments = 'True', pie_chart = encoded_pc.decode('utf-8'), stock_graphs = stock_graphs)
+
+            graphs = json.dumps(stock_graphs, cls=plotly.utils.PlotlyJSONEncoder)
+
+            return render_template("portfolio.html", graphs = graphs, curruser = username, investments = 'True', pie_chart = pie_chart)
         else:
             db.close()
             return render_template("portfolio.html", curruser = username, investments = 'False')
@@ -452,11 +455,20 @@ def take_input_custom():
             else:
                 return "<script>alert('Select at least 5 stocks'); window.location = window.history.back();</script>"
         else:
-            stocks = db.execute("SELECT * FROM assets").fetchall()
-            syms = [s.symbol for s in list(stocks)]
-            syms = sorted(syms)
+            stocks = db.execute("SELECT * FROM assets WHERE type = :typ", {'typ': 'small-cap'}).fetchall()
+            sc = [s.symbol for s in list(stocks)]
+            sc = sorted(sc)
+
+            stocks = db.execute("SELECT * FROM assets WHERE type = :typ", {'typ': 'mid-cap'}).fetchall()
+            mc = [s.symbol for s in list(stocks)]
+            mc = sorted(mc)
+
+            stocks = db.execute("SELECT * FROM assets WHERE type = :typ", {'typ': 'large-cap'}).fetchall()
+            lc = [s.symbol for s in list(stocks)]
+            lc = sorted(lc)
+
             db.close()
-            return render_template("input.html", curruser = username, type = type, syms = syms)
+            return render_template("input.html", curruser = username, type = type, sc = sc, mc = mc, lc = lc)
     else:
         return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
 
