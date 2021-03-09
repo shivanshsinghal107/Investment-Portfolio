@@ -4,7 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
     <title>Optimization Results</title>
+
+    <style type="text/css">
+      .chart{
+          margin-top: 15px;
+          text-align: center;
+      }
+    </style>
 
     <link rel="icon" href="../static/logo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
@@ -55,131 +64,210 @@
     </nav>
     <br>
     <h3>Suggested Porfolio Optimizations</h3>
-    <h4>High Risk | High Return</h4>
-    <p>Aggressive - This portfolio is optimized to give you gains, which will consistently beat the market and generate incredible returns. But be cautious with high returns comes great Risk.</p>
-    <div style="overflow-x: scroll">
-      <table class="table table-dark">
-        <thead>
-          <tr>
-            <th scope="col"></th>
-            {% for sym in syms %}
-              <th scope="col">{{sym}}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Weightage</td>
-            {% for wt in sharpe_wts %}
-              <td>{{wt}}</td>
-            {% endfor %}
-          </tr>
-          <tr>
-            <td>Price(INR)</td>
-            {% for price in curr_price %}
-              <td>{{price}}</td>
-            {% endfor %}
-          </tr>
-          <tr>
-            <td>Quantity</td>
-            {% for unit in sharpe_units %}
-              <td>{{unit}}</td>
-            {% endfor %}
-          </tr>
-        </tbody>
-      </table>
-    </div>
     <br>
-    <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = sharpe_units)}}" method="POST">
-      <div class="d-grid gap-2 col-3 mx-auto">
-        <button type="submit" class="btn btn-dark">Buy</button>
+    <h4>Sharpe Ratio Maximization - High Risk | High Return</h4>
+    <div class="accordion" id="accordionExample1">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button btn btn-dark active collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            <strong>Details / Buy</strong>
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample1">
+          <div class="accordion-body">
+            <p>Aggressive - This portfolio is optimized to give you gains, which will consistently beat the market and generate incredible returns. But be cautious with high returns comes great Risk.</p>
+            <div style="overflow-x: scroll">
+              <table class="table table-dark">
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    {% for sym in syms %}
+                      <th scope="col">{{sym}}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Weightage</td>
+                    {% for wt in sharpe_wts %}
+                      <td>{{wt}}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Price(INR)</td>
+                    {% for price in curr_price %}
+                      <td>{{price}}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Quantity</td>
+                    {% for unit in sharpe_units %}
+                      <td>{{unit}}</td>
+                    {% endfor %}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <br>
+            <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = sharpe_units)}}" method="POST">
+              <div class="d-grid gap-2 col-3 mx-auto">
+                <button type="submit" class="btn btn-dark">Buy</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-    </form>
+    </div>
+    <div class="chart" id="sharpechart"></div>
     <br><br>
-    <h4>Minimum Risk | Alternative to FD</h4>
-    <p>Low Risk - This portfolio has been carefully crafted to give you steady returns and minimise the Risk. Even during the toughest of times, this portfolio can hold the fort.</p>
-    <div style="overflow-x: scroll">
-      <table class="table table-dark">
-        <thead>
-          <tr>
-            <th scope="col"></th>
-            {% for sym in syms %}
-              <th scope="col">{{sym}}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Weightage</td>
-            {% for wt in var_wts %}
-              <td>{{wt}}</td>
-            {% endfor %}
-          </tr>
-          <tr>
-            <td>Price(INR)</td>
-            {% for price in curr_price %}
-              <td>{{price}}</td>
-            {% endfor %}
-          </tr>
-          <tr>
-            <td>Quantity</td>
-            {% for unit in var_units %}
-              <td>{{unit}}</td>
-            {% endfor %}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <br>
-    <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = var_units)}}" method="POST">
-      <div class="d-grid gap-2 col-3 mx-auto">
-        <button type="submit" class="btn btn-dark">Buy</button>
+    <h4>Minimum Variance - Minimum Risk | Alternative to FD</h4>
+    <div class="accordion" id="accordionExample2">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTwo">
+          <button class="accordion-button btn btn-dark active collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+            <strong>Details / Buy</strong>
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample2">
+          <div class="accordion-body">
+            <p>Low Risk - This portfolio has been carefully crafted to give you steady returns and minimise the Risk. Even during the toughest of times, this portfolio can hold the fort.</p>
+            <div style="overflow-x: scroll">
+              <table class="table table-dark">
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    {% for sym in syms %}
+                      <th scope="col">{{sym}}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Weightage</td>
+                    {% for wt in var_wts %}
+                      <td>{{wt}}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Price(INR)</td>
+                    {% for price in curr_price %}
+                      <td>{{price}}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Quantity</td>
+                    {% for unit in var_units %}
+                      <td>{{unit}}</td>
+                    {% endfor %}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <br>
+            <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = var_units)}}" method="POST">
+              <div class="d-grid gap-2 col-3 mx-auto">
+                <button type="submit" class="btn btn-dark">Buy</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-    </form>
+    </div>
+    <div class="chart" id="varchart"></div>
     <br><br>
-    <h4>Stable Returns {% if markowitz == 'fail' %} (The model doesn't satisfy with the pre decided parameters!) {% endif %}</h4>
-    <p>Moderate Growth - It is the go-to the portfolio for most people. As it comprises of a well-balanced risk and returns. Coupled with high diversity to tackle the ups and downs of the market.</p>
-    <div style="overflow-x: scroll">
-      <table class="table table-dark">
-        <thead>
-          <tr>
-            <th scope="col"></th>
-            {% for sym in syms %}
-              <th scope="col">{{sym}}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Weightage</td>
-            {% for wt in max_return_wts %}
-              <td>{{wt}}</td>
-            {% endfor %}
-          </tr>
-          <tr>
-            <td>Price(INR)</td>
-            {% for price in curr_price %}
-              <td>{{price}}</td>
-            {% endfor %}
-          </tr>
-          <tr>
-            <td>Quantity</td>
-            {% for unit in max_return_units %}
-              <td>{{unit}}</td>
-            {% endfor %}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <br>
-    <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = max_return_units)}}" method="POST">
-      <div class="d-grid gap-2 col-3 mx-auto">
-        <button type="submit" class="btn btn-dark">Buy</button>
+    <h4>Markowitz Model - Stable Returns</h4>
+    <div class="accordion" id="accordionExample3">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingThree">
+          <button class="accordion-button btn btn-dark active collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+            <strong>Details / Buy</strong>
+          </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample3">
+          <div class="accordion-body">
+            <p>Moderate Growth - It is the go-to the portfolio for most people. As it comprises of a well-balanced risk and returns. Coupled with high diversity to tackle the ups and downs of the market.</p>
+            <div style="overflow-x: scroll">
+              <table class="table table-dark">
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    {% for sym in syms %}
+                      <th scope="col">{{sym}}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Weightage</td>
+                    {% for wt in max_return_wts %}
+                      <td>{{wt}}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Price(INR)</td>
+                    {% for price in curr_price %}
+                      <td>{{price}}</td>
+                    {% endfor %}
+                  </tr>
+                  <tr>
+                    <td>Quantity</td>
+                    {% for unit in max_return_units %}
+                      <td>{{unit}}</td>
+                    {% endfor %}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <br>
+            <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = max_return_units)}}" method="POST">
+              <div class="d-grid gap-2 col-3 mx-auto">
+                <button type="submit" class="btn btn-dark">Buy</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-    </form>
+    </div>
+    <div class="chart" id="maxreturnchart"></div>
     <br>
 
   </body>
+
+  <script type="text/javascript">
+    var chart = {{sharpe_chart | safe}};
+    var config = {
+      responsive: true,
+      displayModeBar: false
+    };
+    var layout = {
+      font: {size: 15}
+    };
+    Plotly.plot('sharpechart', chart, layout, config);
+  </script>
+
+  <script type="text/javascript">
+    var chart = {{var_chart | safe}};
+    var config = {
+      responsive: true,
+      displayModeBar: false
+    };
+    var layout = {
+      font: {size: 15}
+    };
+    Plotly.plot('varchart', chart, layout, config);
+  </script>
+
+  <script type="text/javascript">
+    var chart = {{max_return_chart | safe}};
+    var config = {
+      responsive: true,
+      displayModeBar: false
+    };
+    var layout = {
+      font: {size: 15}
+    };
+    Plotly.plot('maxreturnchart', chart, layout, config);
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-popRpmFF9JQgExhfw5tZT4I9/CI5e2QcuUZPOVXb1m7qUmeR2b50u+YFEYe1wgzy" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
