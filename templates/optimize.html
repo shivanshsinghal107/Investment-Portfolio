@@ -1,160 +1,186 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block title %}
-  Optimization Results
-{% endblock %}
+    <title>Optimization Results</title>
 
-{% block heading %}
-  Portfolio Optimization
-{% endblock %}
+    <link rel="icon" href="../static/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-CuOF+2SnTUfTwSZjCXf01h7uYhfOBuxIhGKPbfEJ3+FqH/s6cIFN9bGr1HmAg4fQ" crossorigin="anonymous">
+  </head>
 
-{% block body %}
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/">
-        <img src="https://i.ibb.co/GFbrDM6/1596273798134.png" border="0" width="30" height="30" class="d-inline-block align-top">
-      </a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" href="/">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="/portfolio">Portfolio</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link active" href="/portfolio/investment">Investments</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link active" href="/portfolio/return">Returns</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link active" href="/logout">Logout</a>
-          </li>
-          <li class="nav-item dropdown active">
-            <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              More
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href="/tnc">Terms & Conditions</a>
-              <a class="dropdown-item" href="/about">About Us</a>
-              <a class="dropdown-item" href="/feedback">Give Feedback</a>
-            </div>
-          </li>
-        </ul>
+  <body style="background-color:black;color:white">
+    <h1 align="center">SIP - Student Investment Portfolio</h1>
+    <h2 align="center">Portfolio Optimization</h2>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img src="../static/logo.png" border="0" width="30" height="30" class="d-inline-block align-top">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/portfolio">Portfolio</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link active" href="/portfolio/investment">Investments</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link active" href="/portfolio/return">Returns</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link active" href="/logout">Logout</a>
+            </li>
+            <li class="nav-item dropdown active">
+              <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                More
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="/tnc">Terms & Conditions</a>
+                <a class="dropdown-item" href="/about">About Us</a>
+                <a class="dropdown-item" href="/feedback">Give Feedback</a>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
-  <br>
-  <h3>Suggested Porfolio Optimizations</h3>
-  <h4>High Risk | High Return</h4>
+    </nav>
+    <br>
+    <h3>Suggested Porfolio Optimizations</h3>
+    <h4>High Risk | High Return</h4>
     <p>Aggressive - This portfolio is optimized to give you gains, which will consistently beat the market and generate incredible returns. But be cautious with high returns comes great Risk.</p>
-    <table class="table table-dark">
-      <thead>
-        <tr>
-          <th scope="col"></th>
-          {% for sym in syms %}
-            <th scope="col">{{sym}}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Weightage</td>
-          {% for wt in sharpe_wts %}
-            <td>{{wt}}</td>
-          {% endfor %}
-        </tr>
-        <tr>
-          <td>Price(INR)</td>
-          {% for price in curr_price %}
-            <td>{{price}}</td>
-          {% endfor %}
-        </tr>
-        <tr>
-          <td>Quantity</td>
-          {% for unit in sharpe_units %}
-            <td>{{unit}}</td>
-          {% endfor %}
-        </tr>
-      </tbody>
-    </table>
+    <div style="overflow-x: scroll">
+      <table class="table table-dark">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            {% for sym in syms %}
+              <th scope="col">{{sym}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Weightage</td>
+            {% for wt in sharpe_wts %}
+              <td>{{wt}}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td>Price(INR)</td>
+            {% for price in curr_price %}
+              <td>{{price}}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td>Quantity</td>
+            {% for unit in sharpe_units %}
+              <td>{{unit}}</td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <br>
     <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = sharpe_units)}}" method="POST">
-      <button type="submit" class="btn btn-primary btn-lg btn-block">Buy</button>
+      <div class="d-grid gap-2 col-3 mx-auto">
+        <button type="submit" class="btn btn-dark">Buy</button>
+      </div>
     </form>
-  <br>
-  <h4>Minimum Risk | Alternative to FD</h4>
+    <br><br>
+    <h4>Minimum Risk | Alternative to FD</h4>
     <p>Low Risk - This portfolio has been carefully crafted to give you steady returns and minimise the Risk. Even during the toughest of times, this portfolio can hold the fort.</p>
-    <table class="table table-dark">
-      <thead>
-        <tr>
-          <th scope="col"></th>
-          {% for sym in syms %}
-            <th scope="col">{{sym}}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Weightage</td>
-          {% for wt in var_wts %}
-            <td>{{wt}}</td>
-          {% endfor %}
-        </tr>
-        <tr>
-          <td>Price(INR)</td>
-          {% for price in curr_price %}
-            <td>{{price}}</td>
-          {% endfor %}
-        </tr>
-        <tr>
-          <td>Quantity</td>
-          {% for unit in var_units %}
-            <td>{{unit}}</td>
-          {% endfor %}
-        </tr>
-      </tbody>
-    </table>
+    <div style="overflow-x: scroll">
+      <table class="table table-dark">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            {% for sym in syms %}
+              <th scope="col">{{sym}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Weightage</td>
+            {% for wt in var_wts %}
+              <td>{{wt}}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td>Price(INR)</td>
+            {% for price in curr_price %}
+              <td>{{price}}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td>Quantity</td>
+            {% for unit in var_units %}
+              <td>{{unit}}</td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <br>
     <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = var_units)}}" method="POST">
-      <button type="submit" class="btn btn-primary btn-lg btn-block">Buy</button>
+      <div class="d-grid gap-2 col-3 mx-auto">
+        <button type="submit" class="btn btn-dark">Buy</button>
+      </div>
     </form>
-  <br>
-  <h4>Stable Returns {% if markowitz == 'fail' %} (The model doesn't satisfy with the pre decided parameters!) {% endif %}</h4>
+    <br><br>
+    <h4>Stable Returns {% if markowitz == 'fail' %} (The model doesn't satisfy with the pre decided parameters!) {% endif %}</h4>
     <p>Moderate Growth - It is the go-to the portfolio for most people. As it comprises of a well-balanced risk and returns. Coupled with high diversity to tackle the ups and downs of the market.</p>
-    <table class="table table-dark">
-      <thead>
-        <tr>
-          <th scope="col"></th>
-          {% for sym in syms %}
-            <th scope="col">{{sym}}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Weightage</td>
-          {% for wt in max_return_wts %}
-            <td>{{wt}}</td>
-          {% endfor %}
-        </tr>
-        <tr>
-          <td>Price(INR)</td>
-          {% for price in curr_price %}
-            <td>{{price}}</td>
-          {% endfor %}
-        </tr>
-        <tr>
-          <td>Quantity</td>
-          {% for unit in max_return_units %}
-            <td>{{unit}}</td>
-          {% endfor %}
-        </tr>
-      </tbody>
-    </table>
+    <div style="overflow-x: scroll">
+      <table class="table table-dark">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            {% for sym in syms %}
+              <th scope="col">{{sym}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Weightage</td>
+            {% for wt in max_return_wts %}
+              <td>{{wt}}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td>Price(INR)</td>
+            {% for price in curr_price %}
+              <td>{{price}}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td>Quantity</td>
+            {% for unit in max_return_units %}
+              <td>{{unit}}</td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <br>
     <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = max_return_units)}}" method="POST">
-      <button type="submit" class="btn btn-primary btn-lg btn-block">Buy</button>
+      <div class="d-grid gap-2 col-3 mx-auto">
+        <button type="submit" class="btn btn-dark">Buy</button>
+      </div>
     </form>
-{% endblock %}
+    <br>
+
+  </body>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-popRpmFF9JQgExhfw5tZT4I9/CI5e2QcuUZPOVXb1m7qUmeR2b50u+YFEYe1wgzy" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+</html>
