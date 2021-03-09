@@ -1,83 +1,142 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-{% block title %}
-  {{curruser}} Portfolio
-{% endblock %}
+    <title>{{curruser}} Portfolio</title>
+    
+    <style type="text/css">
+      .chart{
+          margin-top: 15px;
+          text-align: center;
+      }
+    </style>
 
-{% block heading %}
-  {{curruser}}'s Portfolio
-{% endblock %}
+    <link rel="icon" href="../static/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-CuOF+2SnTUfTwSZjCXf01h7uYhfOBuxIhGKPbfEJ3+FqH/s6cIFN9bGr1HmAg4fQ" crossorigin="anonymous">
+  </head>
 
-{% block body %}
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/">
-        <img src="https://i.ibb.co/GFbrDM6/1596273798134.png" border="0" width="30" height="30" class="d-inline-block align-top">
-      </a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" href="/">Home</a>
-          </li>
-          <li class="nav-item dropdown active">
-            <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Optimize
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
-              <a class="dropdown-item" href="/input/featured">Featured</a>
-              <a class="dropdown-item" href="/input/custom">Custom</a>
-            </div>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link active" href="/portfolio/investment">Investments</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link active" href="/portfolio/return">Returns</a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link active" href="/logout">Logout</a>
-          </li>
-          <li class="nav-item dropdown active">
-            <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              More
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href="/tnc">Terms & Conditions</a>
-              <a class="dropdown-item" href="/about">About Us</a>
-              <a class="dropdown-item" href="/feedback">Give Feedback</a>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  <br>
-  {% if investments == 'True' %}
-    <h3>Category-wise Investments</h3>
-    <img src = "data:image/png;base64, {{pie_chart}}" class="img-fluid">
-    <br><br>
-    <h3>Investments</h3><br>
-      <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-        <div class="carousel-inner">
-          {% for graph in stock_graphs %}
-            <div class="carousel-item{% if loop.index == 1 %} active{% endif %}">
-              <img class="d-block" src="data:image/png;base64, {{graph}}" alt="First slide" style=" width: 80%; margin: auto;">
-            </div>
-          {% endfor %}
+  <body style="background-color:black;color:white">
+    <h1 align="center">SIP - Student Investment Portfolio</h1>
+    <h2 align="center">{{curruser}}'s Portfolio</h2>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img src="../static/logo.png" border="0" width="30" height="30" class="d-inline-block align-top">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="/">Home</a>
+            </li>
+            <li class="nav-item dropdown active">
+              <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Optimize
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
+                <a class="dropdown-item" href="/input/featured">Featured</a>
+                <a class="dropdown-item" href="/input/custom">Custom</a>
+              </div>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link active" href="/portfolio/investment">Investments</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link active" href="/portfolio/return">Returns</a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link active" href="/logout">Logout</a>
+            </li>
+            <li class="nav-item dropdown active">
+              <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                More
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" href="/tnc">Terms & Conditions</a>
+                <a class="dropdown-item" href="/about">About Us</a>
+                <a class="dropdown-item" href="/feedback">Give Feedback</a>
+              </div>
+            </li>
+          </ul>
         </div>
-        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="sr-only">Next</span>
-        </a>
+      </div>
+    </nav>
+    <br>
+    {% if investments == 'True' %}
+      <!-- <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              <h5>Investments</h5>
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+              
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingTwo">
+            <button class="accordion-button collapsed btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              <h5>Category-wise Investments</h5>
+            </button>
+          </h2>
+          <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+              <div id="piechart" class="chart">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+      <div class="container-fluid">
+        <h3>Investments</h3>
+        <div id="chart" class="chart">
+        </div>
+      </div>
+      <br><br>
+      <div class="container-fluid">
+        <h3>Distribution</h3>
+        <div id="piechart" class="chart">
+        </div>
       </div>
     {% else %}
       <h3>Doesn't look good empty here, make use of the app</h3>
     {% endif %}
-{% endblock %}
+  </body>
+
+  <script type="text/javascript">
+      var graph = {{pie_chart | safe}};
+      var config = {
+        responsive: true,
+        displayModeBar: false
+      };
+      var layout = {
+        font: {size: 14}
+      };
+      Plotly.plot('piechart', graph, layout, config);
+  </script>
+
+  <script type="text/javascript">
+    var chart = {{graphs | safe}};
+    var config = {
+      responsive: true,
+      displayModeBar: false
+    };
+    var layout = {
+      font: {size: 14}
+    };
+    Plotly.plot('chart', chart, layout, config);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-popRpmFF9JQgExhfw5tZT4I9/CI5e2QcuUZPOVXb1m7qUmeR2b50u+YFEYe1wgzy" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+</html>
