@@ -554,7 +554,46 @@ def optimization(type, stocks, money):
             max_return_money = [round(w*int(money), 2) for w in max_return_wts]
             max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
 
-            return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns), markowitz = markowitz)
+            stock_graphs = []
+            for c in stock_data.columns:
+                trace = go.Scatter(
+                    x = stock_data.index,
+                    y = stock_data[c],
+                    name = c,
+                    fill = 'tozeroy'
+                )
+                stock_graphs.append(trace)
+
+            graphs = json.dumps(stock_graphs, cls=plotly.utils.PlotlyJSONEncoder)
+
+            trace = go.Pie(
+                labels = syms,
+                values = [int(i.replace(' %', '')) for i in sharpe_per_wts],
+                textposition = 'outside',
+                textinfo = 'percent+label',
+            )
+            data = [trace]
+            sharpe_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+            trace = go.Pie(
+                labels = syms,
+                values = [int(i.replace(' %', '')) for i in var_per_wts],
+                textposition = 'outside',
+                textinfo = 'percent+label',
+            )
+            data = [trace]
+            var_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+            trace = go.Pie(
+                labels = syms,
+                values = [int(i.replace(' %', '')) for i in max_return_per_wts],
+                textposition = 'outside',
+                textinfo = 'percent+label',
+            )
+            data = [trace]
+            max_return_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+            return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns), markowitz = markowitz, graphs = graphs, sharpe_chart = sharpe_chart, var_chart = var_chart, max_return_chart = max_return_chart)
             #except:
             #    return render_template("error.html")
         else:
@@ -608,7 +647,48 @@ def optimization(type, stocks, money):
             max_return_money = [round(w*int(money), 2) for w in max_return_wts]
             max_return_units = [int(mon / price) for mon, price in zip(max_return_money, curr_price)]
 
-            return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = syms, markowitz = 'pass')
+            start = str(datetime.date.today() + relativedelta(years=-5))
+            syms_data = pdr.get_data_yahoo(syms, start = start)['Adj Close']
+            stock_graphs = []
+            for c in syms_data.columns:
+                trace = go.Scatter(
+                    x = syms_data.index,
+                    y = syms_data[c],
+                    name = c,
+                    fill = 'tozeroy'
+                )
+                stock_graphs.append(trace)
+
+            graphs = json.dumps(stock_graphs, cls=plotly.utils.PlotlyJSONEncoder)
+
+            trace = go.Pie(
+                labels = syms,
+                values = [int(i.replace(' %', '')) for i in sharpe_per_wts],
+                textposition = 'outside',
+                textinfo = 'percent+label',
+            )
+            data = [trace]
+            sharpe_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+            trace = go.Pie(
+                labels = syms,
+                values = [int(i.replace(' %', '')) for i in var_per_wts],
+                textposition = 'outside',
+                textinfo = 'percent+label',
+            )
+            data = [trace]
+            var_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+            trace = go.Pie(
+                labels = syms,
+                values = [int(i.replace(' %', '')) for i in max_return_per_wts],
+                textposition = 'outside',
+                textinfo = 'percent+label',
+            )
+            data = [trace]
+            max_return_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+            return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = syms, markowitz = 'pass', graphs = graphs, sharpe_chart = sharpe_chart, var_chart = var_chart, max_return_chart = max_return_chart)
     else:
         return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
 

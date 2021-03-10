@@ -63,14 +63,16 @@
       </div>
     </nav>
     <br>
-    <h3>Suggested Porfolio Optimizations</h3>
+    <h3>Current Trends/Performances</h3>
+    <div class="chart" id="trends"></div>
     <br>
+    <h3>Suggested Porfolio Optimizations</h3>
     <h4>Sharpe Ratio Maximization - High Risk | High Return</h4>
     <div class="accordion" id="accordionExample1">
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingOne">
           <button class="accordion-button btn btn-dark active collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            <strong>Details / Buy</strong>
+            <div>Details / Buy</div>
           </button>
         </h2>
         <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample1">
@@ -110,7 +112,7 @@
             </div>
             <br>
             <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = sharpe_units)}}" method="POST">
-              <div class="d-grid gap-2 col-3 mx-auto">
+              <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-dark">Buy</button>
               </div>
             </form>
@@ -125,7 +127,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingTwo">
           <button class="accordion-button btn btn-dark active collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-            <strong>Details / Buy</strong>
+            <div>Details / Buy</div>
           </button>
         </h2>
         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample2">
@@ -165,7 +167,7 @@
             </div>
             <br>
             <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = var_units)}}" method="POST">
-              <div class="d-grid gap-2 col-3 mx-auto">
+              <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-dark">Buy</button>
               </div>
             </form>
@@ -180,7 +182,7 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="headingThree">
           <button class="accordion-button btn btn-dark active collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-            <strong>Details / Buy</strong>
+            <div>Details / Buy</div>
           </button>
         </h2>
         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample3">
@@ -220,7 +222,7 @@
             </div>
             <br>
             <form action="{{url_for('buy_optimized', symbols = syms, curr_price = curr_price, units = max_return_units)}}" method="POST">
-              <div class="d-grid gap-2 col-3 mx-auto">
+              <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-dark">Buy</button>
               </div>
             </form>
@@ -232,6 +234,18 @@
     <br>
 
   </body>
+
+  <script type="text/javascript">
+    var chart = {{graphs | safe}};
+    var config = {
+      responsive: true,
+      displayModeBar: false
+    };
+    var layout = {
+      font: {size: 14}
+    };
+    Plotly.plot('trends', chart, layout, config);
+  </script>
 
   <script type="text/javascript">
     var chart = {{sharpe_chart | safe}};
