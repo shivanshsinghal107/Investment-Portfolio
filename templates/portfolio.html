@@ -8,10 +8,70 @@
 
     <title>{{curruser}} Portfolio</title>
     
-    <style type="text/css">
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+
       .chart{
           margin-top: 15px;
           text-align: center;
+      }
+
+      body {
+        overflow-x: hidden;
+      }
+
+      #header .brand-name {
+          font-size: 60px;
+      }
+
+      #header .btn-get-started {
+          font-weight: 500;
+          font-size: 16px;
+          letter-spacing: 1px;
+          display: inline-block;
+          padding: 10px 30px;
+          border-radius: 50px;
+          transition: 0.5s;
+          color: #ffffff;
+          background-color: black;
+          border: 2px solid #ffffff;
+          text-decoration: none;
+      }
+
+      #header .btn-get-started:hover {
+          background: #484848;
+          color: #ffffff;
+      }
+
+      #header .animated {
+          animation: up-down 2s ease-in-out infinite alternate-reverse both;
+      }
+
+      #header #get-started {
+          padding: 120px 150px 0px 20px;
+      }
+
+      #header .image {
+          padding: 70px 40px 40px 130px;
+      }
+
+      @media only screen and (max-width: 600px) {
+
+          #header .image {
+              padding: 0px 30px 0px 25px;
+              width: 100%;
+          }
+
+          #header #get-started {
+              padding: 20px 40px 20px 35px;
+              width: 100%;
+          }
+
+          input {
+              width: 80%;
+          }
       }
     </style>
 
@@ -21,8 +81,6 @@
   </head>
 
   <body style="background-color:black;color:white">
-    <h1 align="center">SIP - Student Investment Portfolio</h1>
-    <h2 align="center">{{curruser}}'s Portfolio</h2>
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
@@ -69,42 +127,44 @@
       </div>
     </nav>
     <br>
-    {% if investments == 'True' %}
-      <!-- <div class="accordion" id="accordionExample">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingOne">
-            <button class="accordion-button btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-              <h5>Investments</h5>
-            </button>
-          </h2>
-          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-            <div class="accordion-body">
-              
-            </div>
-          </div>
-        </div>
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="headingTwo">
-            <button class="accordion-button collapsed btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-              <h5>Category-wise Investments</h5>
-            </button>
-          </h2>
-          <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-            <div class="accordion-body">
-              <div id="piechart" class="chart">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
+    <section id="header" class="d-flex align-items-center">
       <div class="container-fluid">
-        <h3>Investments</h3>
+      <div class="row">
+          <div class="col-12 mx-auto">
+              <div class="row">
+                <div class="col-6 image">
+                  <img src="../static/jiffy-trading-benefits.png" class="img-fluid animated"/>
+                </div>
+                <div class="col-6" id="get-started">
+                  <h1>
+                    <strong class="brand-name">{{curruser}}'s Portfolio</strong>
+                  </h1>
+                  <h2 class="my-3">
+                      Analyse | Learn | Optimize
+                  </h2>
+                  <div class="row">
+                    <div class="mt-3">
+                      <button type="submit" class="btn-get-started col-6" onclick="showInvestments()">Investments</button>
+                    </div>
+                    <div class="mt-3">
+                      <button type="submit" class="btn-get-started col-6" onclick="showDistribution()">Distribution</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+      </div>
+      </div>
+    </section>
+    {% if investments == 'True' %}
+      <div class="container-fluid" id="investments">
+        <h3 class="brand-name">Investments</h3>
         <div id="chart" class="chart">
         </div>
       </div>
       <br><br>
-      <div class="container-fluid">
-        <h3>Distribution</h3>
+      <div class="container-fluid" id="distribution">
+        <h3 class="brand-name">Distribution</h3>
         <div id="piechart" class="chart">
         </div>
       </div>
@@ -112,6 +172,18 @@
       <h3>Doesn't look good empty here, make use of the app</h3>
     {% endif %}
   </body>
+
+  <script type="text/javascript">
+    function showInvestments() {
+      var investments = document.getElementById("investments");
+      investments.scrollIntoView();
+    }
+
+    function showDistribution() {
+      var distribution = document.getElementById("distribution");
+      distribution.scrollIntoView();
+    }
+  </script>
 
   <script type="text/javascript">
       var graph = {{pie_chart | safe}};
