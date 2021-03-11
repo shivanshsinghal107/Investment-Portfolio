@@ -584,14 +584,17 @@ def optimization(type, stocks, money):
             data = [trace]
             var_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
 
-            trace = go.Pie(
-                labels = syms,
-                values = [int(i.replace(' %', '')) for i in max_return_per_wts],
-                textposition = 'outside',
-                textinfo = 'percent+label',
-            )
-            data = [trace]
-            max_return_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+            if markowitz == 'pass':
+                trace = go.Pie(
+                    labels = syms,
+                    values = [int(i.replace(' %', '')) for i in max_return_per_wts],
+                    textposition = 'outside',
+                    textinfo = 'percent+label',
+                )
+                data = [trace]
+                max_return_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+            else:
+                max_return_chart = ""
 
             return render_template("optimize.html", curruser = username, sharpe_wts = sharpe_per_wts, var_wts = var_per_wts, max_return_wts = max_return_per_wts, sharpe_units = sharpe_units, var_units = var_units, max_return_units = max_return_units, curr_price = curr_price, syms = list(stock_data.columns), markowitz = markowitz, graphs = graphs, sharpe_chart = sharpe_chart, var_chart = var_chart, max_return_chart = max_return_chart)
             #except:
