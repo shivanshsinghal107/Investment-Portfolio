@@ -249,6 +249,8 @@ def investments():
             total_inv = 0
             syms = []
             betas = []
+            profits = {}
+            loss = {}
             #cagrs = []
             #rois = []
             start = str(datetime.date.today() + relativedelta(years=-5))
@@ -288,6 +290,11 @@ def investments():
                 if invs[i].quantity > 0:
                     p = prices[i]
                     pchange.append(round((p/invs[i].buy_price - 1)*100, 2))
+                    val = (p - invs[i].buy_price) * invs[i].quantity
+                    if val < 0:
+                        loss[syms[i]] = -1 * val
+                    else:
+                        profits[syms[i]] = val
                     net_pl += p * invs[i].quantity
                     da = invs[i].date[:10].split("-")
                     date = f"{da[2]}-{da[1]}-{da[0]}"
@@ -301,7 +308,28 @@ def investments():
             db.close()
             roi = round(((net_pl-total)/total)*100, 2)
             cagr = round(((net_pl/total)**(1/5)-1)*100, 2)
-            return render_template("investment.html", curruser = username, dates = dates, invs = invs, symbols = syms, prices = prices, type = type, pchange = pchange, betas = betas, net_pl = int(net_pl), total = int(total), total_inv = int(total_inv), roi = roi, cagr = cagr)
+
+            trace = go.Pie(
+                labels = list(profits.keys()),
+                values = list(profits.values()),
+                textposition = 'outside',
+                textinfo = 'percent+label',
+                hole = .6
+            )
+            data = [trace]
+            profit_pie_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+            trace = go.Pie(
+                labels = list(loss.keys()),
+                values = list(loss.values()),
+                textposition = 'outside',
+                textinfo = 'percent+label',
+                hole = .6
+            )
+            data = [trace]
+            loss_pie_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+            return render_template("investment.html", curruser = username, profit_pie_chart = profit_pie_chart, loss_pie_chart = loss_pie_chart, dates = dates, invs = invs, symbols = syms, prices = prices, type = type, pchange = pchange, betas = betas, net_pl = int(net_pl), total = int(total), total_inv = int(total_inv), roi = roi, cagr = cagr)
         else:
             db.close()
             return render_template("investment.html", curruser = username, dates = [], invs = [], symbols = [], prices = [], type = [], pchange = [], betas = [], net_pl = 0, total = 0, total_inv = 0, roi = 0, cagr = 0)
@@ -346,25 +374,29 @@ def portfolio():
             # category = []
             assets = []
             symbols = []
-            investments = {}
             for i in invs:
-                investments[i.asset] = 0
                 a = db.execute("SELECT * FROM assets WHERE name = :name", {"name": i.asset}).fetchall()[0]
                 # category.append(a.type)
                 if i.asset not in assets:
                     assets.append(i.asset)
                     symbols.append(a.symbol)
             # d = dict(Counter(category))
+            # print(category)
+            investments = {}
+            for i in invs:
+                investments[i.asset] = 0
 
             for i in invs:
                 investments[i.asset] += i.buy_price * i.quantity
-            # print(investments)
+
+            print(investments)
 
             trace = go.Pie(
                 labels = list(investments.keys()),
                 values = list(investments.values()),
                 textposition = 'outside',
                 textinfo = 'percent+label',
+                hole = .6
             )
             data = [trace]
             pie_chart = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
@@ -420,40 +452,31 @@ def display_asset(category, asset, show):
 
     return render_template("stock.html", graphJSON = graphJSON, asset = asset, category = category, symbol = a.symbol, curr_price = curr_price, currency = a.currency, show = show.title())
 
-@app.route("/input/featured", methods = ['GET', 'POST'])
-def take_input_featured():
-    if session.get("logged_in"):
-        username = session["username"]
-        type = 'featured'
-        syms = ['ALEMBICLTD.NS', 'CHAMANSEQ.BO', 'DLTNCBL.BO', 'ESTER.NS', 'FAZE3Q.BO', 'FOODSIN.BO', 'GANESHBE.BO', 'INTENTECH.BO', 'JPASSOCIAT.BO', 'NEOINFRA.BO', 'RAMANEWS.NS', 'SALSTEEL.NS', 'SEAMECLTD.BO', 'TATACHEM.NS', 'TIGLOB.BO', 'UFO.NS', 'UNIDT.BO', 'YUKEN.BO']
-        if request.method == 'POST':
-            money = request.form.get("money")
-            stock_str = ""
-            for s in syms:
-                stock_str += s + ", "
-            print(stock_str)
-            return redirect(f"https://quantizers.herokuapp.com/optimization/{type}/{stock_str}/{money}")
-        else:
-            return render_template("input.html", curruser = username, type = type, syms = syms)
-    else:
-        return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
-
-@app.route("/input/custom", methods = ['GET', 'POST'])
+@app.route("/optimize", methods = ['GET', 'POST'])
 def take_input_custom():
     if session.get("logged_in"):
         username = session["username"]
-        type = 'custom'
+        syms = ['ALEMBICLTD.NS', 'CHAMANSEQ.BO', 'DLTNCBL.BO', 'ESTER.NS', 'FAZE3Q.BO', 'FOODSIN.BO', 'GANESHBE.BO', 'INTENTECH.BO', 'JPASSOCIAT.BO', 'NEOINFRA.BO', 'RAMANEWS.NS', 'SALSTEEL.NS', 'SEAMECLTD.BO', 'TATACHEM.NS', 'TIGLOB.BO', 'UFO.NS', 'UNIDT.BO', 'YUKEN.BO']
         if request.method == 'POST':
-            money = request.form.get("money")
-            stocks = request.form.getlist("stocks")
-            if len(stocks) >= 5:
+            typ = request.form.get("type")
+            if typ == "custom":
+                money = request.form.get("cmoney")
+                stocks = request.form.getlist("stocks")
+                if len(stocks) >= 5:
+                    stock_str = ""
+                    for s in stocks:
+                        stock_str += s + ", "
+                    print(stock_str)
+                    return redirect(f"https://quantizers.herokuapp.com/optimization/{typ}/{stock_str}/{money}")
+                else:
+                    return "<script>alert('Select at least 5 stocks'); window.location = window.history.back();</script>"
+            else:
+                money = request.form.get("fmoney")
                 stock_str = ""
-                for s in stocks:
+                for s in syms:
                     stock_str += s + ", "
                 print(stock_str)
-                return redirect(f"https://quantizers.herokuapp.com/optimization/{type}/{stock_str}/{money}")
-            else:
-                return "<script>alert('Select at least 5 stocks'); window.location = window.history.back();</script>"
+                return redirect(f"https://quantizers.herokuapp.com/optimization/{typ}/{stock_str}/{money}")
         else:
             stocks = db.execute("SELECT * FROM assets WHERE type = :typ", {'typ': 'small-cap'}).fetchall()
             sc = [s.symbol for s in list(stocks)]
@@ -468,7 +491,7 @@ def take_input_custom():
             lc = sorted(lc)
 
             db.close()
-            return render_template("input.html", curruser = username, type = type, sc = sc, mc = mc, lc = lc)
+            return render_template("input.html", curruser = username, type = type, sc = sc, mc = mc, lc = lc, syms = syms)
     else:
         return "<script>alert('Login first'); window.location = 'https://quantizers.herokuapp.com/login';</script>"
 
