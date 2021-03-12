@@ -14,7 +14,6 @@
       }
 
       .chart{
-          margin-top: 15px;
           text-align: center;
       }
 
@@ -68,10 +67,6 @@
               padding: 20px 40px 20px 35px;
               width: 100%;
           }
-
-          input {
-              width: 80%;
-          }
       }
     </style>
 
@@ -94,14 +89,8 @@
             <li class="nav-item">
               <a class="nav-link active" href="/">Home</a>
             </li>
-            <li class="nav-item dropdown active">
-              <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Optimize
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
-                <a class="dropdown-item" href="/input/featured">Featured</a>
-                <a class="dropdown-item" href="/input/custom">Custom</a>
-              </div>
+            <li class="nav-item">
+              <a class="nav-link active" href="/optimize">Optimize</a>
             </li>
             <li class="nav-item active">
               <a class="nav-link active" href="/portfolio/investment">Investments</a>
@@ -157,17 +146,10 @@
       </div>
     </section>
     {% if investments == 'True' %}
-      <div class="container-fluid" id="investments">
-        <h3 class="brand-name">Investments</h3>
-        <div id="chart" class="chart">
-        </div>
-      </div>
+      <div id="chart" class="chart"></div>
       <br><br>
-      <div class="container-fluid" id="distribution">
-        <h3 class="brand-name">Distribution</h3>
-        <div id="piechart" class="chart">
-        </div>
-      </div>
+      <div id="piechart" class="chart"></div>
+      <br>
     {% else %}
       <h3>Doesn't look good empty here, make use of the app</h3>
     {% endif %}
@@ -175,12 +157,12 @@
 
   <script type="text/javascript">
     function showInvestments() {
-      var investments = document.getElementById("investments");
+      var investments = document.getElementById("chart");
       investments.scrollIntoView();
     }
 
     function showDistribution() {
-      var distribution = document.getElementById("distribution");
+      var distribution = document.getElementById("piechart");
       distribution.scrollIntoView();
     }
   </script>
@@ -192,7 +174,15 @@
         displayModeBar: false
       };
       var layout = {
-        font: {size: 14}
+        paper_bgcolor: 'black',
+        font: {
+          size: 15,
+          color: 'white'
+        },
+        title: 'Distribution',
+        "titlefont": {
+          "size": 30,
+        }
       };
       Plotly.plot('piechart', graph, layout, config);
   </script>
@@ -204,7 +194,15 @@
       displayModeBar: false
     };
     var layout = {
-      font: {size: 14}
+      paper_bgcolor: 'black',
+      font: {
+        size: 15,
+        color: 'white'
+      },
+      title: 'Investments',
+      "titlefont": {
+        "size": 30,
+      }
     };
     Plotly.plot('chart', chart, layout, config);
   </script>
