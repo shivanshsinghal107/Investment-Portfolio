@@ -12,8 +12,6 @@
   </head>
 
   <body style="background-color:black;color:white">
-    <h1 align="center">SIP - Student Investment Portfolio</h1>
-    <h2 align="center">{{category}}</h2>
     {% if loginstatus == 'True' %}
       <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
@@ -31,14 +29,8 @@
               <li class="nav-item">
                 <a class="nav-link active" href="/portfolio">Portfolio</a>
               </li>
-              <li class="nav-item dropdown active">
-                <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Optimize
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
-                  <a class="dropdown-item" href="/input/featured">Featured</a>
-                  <a class="dropdown-item" href="/input/custom">Custom</a>
-                </div>
+              <li class="nav-item">
+                <a class="nav-link active" href="/optimize">Optimize</a>
               </li>
               <li class="nav-item active">
                 <a class="nav-link active" href="/portfolio/investment">Investments</a>
@@ -97,6 +89,7 @@
         </div>
       </nav>
     {% endif %}
+    <h2 align="center" style="font-size: 50px;"><strong>{{category}}</strong></h2>
     <br>
     <table class="table-hover table table-dark">
       <thead>
@@ -119,14 +112,14 @@
             <td>{{prices[loop.index-1]}}</td>
             {% if loginstatus == 'True' %}
               <td>
-                <form action="{{url_for('buy', id = d.id, price = prices[loop.index-1])}}" method="POST">
-                  <div class="form-row align-items-center">
-                    <div class="col-auto">
-                      <input type="number" name="quantity" class="form-control mb-2" placeholder="Quantity" min="1">
+                <form action="{{url_for('buy', id = d.id, price = prices[loop.index-1])}}" class="row row-cols-lg-auto g-3 align-items-center" method="POST">
+                  <div class="col-12">
+                    <div class="input-group">
+                      <input type="number" name="quantity" class="form-control" placeholder="Quantity" min="1">
                     </div>
-                    <div class="col-auto">
-                      <button type="submit" class="btn btn-dark mb-2">Buy</button>
-                    </div>
+                  </div>
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-secondary">Buy</button>
                   </div>
                 </form>
               </td>
