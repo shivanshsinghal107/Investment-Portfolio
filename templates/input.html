@@ -140,9 +140,9 @@
                                 <button type="button"  style="background-color: #ffffff;" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
-                                <ul>
+                                <ul class="list-group">
                                   {% for s in syms %}
-                                    <li>{{s}}</li>
+                                    <li class="list-group-item" style="background-color: black;">{{s}}</li>
                                   {% endfor %}
                                 </ul>
                               </div>
@@ -190,10 +190,14 @@
                                 <button type="button"  style="background-color: #ffffff;" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
-                                {% for s in sc %}
-                                  <input type="checkbox" name="stocks" value="{{s}}">
-                                  <label for="stocks">{{s}}</label><br>
-                                {% endfor %}
+                                <ul class="list-group">
+                                  {% for s in sc %}
+                                    <li class="list-group-item" style="background-color: black;">
+                                      <input class="form-check-input me-1" type="checkbox" name="stocks" value="{{s}}">
+                                      <label for="stocks">{{s}}</label>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn-get-started" data-bs-dismiss="modal">Close</button>
@@ -215,10 +219,14 @@
                                 <button type="button"  style="background-color: #ffffff;" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
-                                {% for s in mc %}
-                                  <input type="checkbox" name="stocks" value="{{s}}">
-                                  <label for="stocks">{{s}}</label><br>
-                                {% endfor %}
+                                <ul class="list-group">
+                                  {% for s in mc %}
+                                    <li class="list-group-item" style="background-color: black;">
+                                      <input class="form-check-input me-1" type="checkbox" name="stocks" value="{{s}}">
+                                      <label for="stocks">{{s}}</label>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn-get-started" data-bs-dismiss="modal">Close</button>
@@ -240,10 +248,14 @@
                                 <button type="button"  style="background-color: #ffffff;" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
-                                {% for s in lc %}
-                                  <input type="checkbox" name="stocks" value="{{s}}">
-                                  <label for="stocks">{{s}}</label><br>
-                                {% endfor %}
+                                <ul class="list-group">
+                                  {% for s in lc %}
+                                    <li class="list-group-item" style="background-color: black;">
+                                      <input class="form-check-input me-1" type="checkbox" name="stocks" value="{{s}}">
+                                      <label for="stocks">{{s}}</label>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn-get-started" data-bs-dismiss="modal">Close</button>
