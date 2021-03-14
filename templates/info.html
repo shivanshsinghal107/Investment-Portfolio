@@ -6,14 +6,62 @@
 
     <title>{{info}}</title>
 
+    <style>
+      .btn-get-started {
+          font-weight: 500;
+          font-size: 16px;
+          letter-spacing: 1px;
+          display: inline-block;
+          padding: 10px 30px;
+          border-radius: 50px;
+          transition: 0.5s;
+          color: #ffffff;
+          background-color: black;
+          border: 2px solid #ffffff;
+          text-decoration: none;
+      }
+
+      .btn-get-started:hover {
+          background: #484848;
+          color: #ffffff;
+      }
+
+      .row {
+        padding: 0px 20px 0px 20px;
+      }
+
+      .card-body {
+        background-color: black;
+        border: none;
+      }
+
+      .card-img-top {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+      }
+
+      .zoom {
+        transition: transform .2s;
+      }
+
+      .zoom:hover {
+        transform: scale(1.1);
+      }
+
+      @media only screen and (max-width: 600px) {
+        .col-md-3 {
+          padding-bottom: 20px;
+        }
+      }
+    </style>
+
     <link rel="icon" href="../static/logo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-CuOF+2SnTUfTwSZjCXf01h7uYhfOBuxIhGKPbfEJ3+FqH/s6cIFN9bGr1HmAg4fQ" crossorigin="anonymous">
   </head>
 
   <body style="background-color:black;color:white">
-    <h1 align="center">SIP - Student Investment Portfolio</h1>
-    <h2 align="center">{{info}}</h2>
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="/">
@@ -42,24 +90,64 @@
     </nav>
     <br>
     {% if info == 'About Us' %}
-    <p>We at Quantizers, believe that one should achieve financial freedom early and to establish a good financial career, one should start investing at a young age. Thus, we use proven mathematical operations to optimize portfolios made on a screened list of opportunities to invest.</p>
-    <h3>Team Quantizers</h3>
-    <a href="https://www.linkedin.com/in/hemant-karanjkar-827058185/">
-      <img src="https://i.ibb.co/pvk689z/20190823-032503-2.jpg" height="370" width="370">
-    </a>
-    <a href="https://www.linkedin.com/in/shivansh-singhal/">
-      <img src="https://i.ibb.co/fdJDQMd/DSCN0193-2.jpg" height="370" width="370">
-    </a>
-    <a href="https://www.linkedin.com/in/rushiraj-gohil/">
-      <img src="https://i.ibb.co/hDWBJd2/Copy-of-IMG-0795-3.jpg" height="370" width="370">
-    </a>
-    <a href="https://www.linkedin.com/in/naman-mathur-318651167/">
-      <img src="https://i.ibb.co/zfRGX6s/IMG-20200604-WA0029-2.jpg" height="370" width="370">
-    </a>
+    <h1 align="center" style="font-size: 50px;"><strong>QUANTIZERS</strong></h1>
+    <br><br>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-3 zoom">
+          <div class="card">
+            <img src="../static/hemant.png" class="card-img-top" style="background-color: gold;">
+            <div class="card-body">
+              <h5 class="card-title">Hemant Karanjkar</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <a target="_blank" href="https://www.linkedin.com/in/hemant-karanjkar-827058185/" class="btn-get-started">Contact</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 zoom">
+          <div class="card">
+            <img src="../static/shivansh.png" class="card-img-top" style="background-color: gold;">
+            <div class="card-body">
+              <h5 class="card-title">Shivansh Singhal</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <a target="_blank" href="https://www.linkedin.com/in/shivansh-singhal/" class="btn-get-started">Contact</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 zoom">
+          <div class="card">
+            <img src="../static/rushiraj.png" class="card-img-top" style="background-color: gold;">
+            <div class="card-body">
+              <h5 class="card-title">Rushiraj Gohil</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <a target="_blank" href="https://www.linkedin.com/in/rushiraj-gohil/" class="btn-get-started">Contact</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 zoom">
+          <div class="card">
+            <img src="../static/naman.png" class="card-img-top" style="background-color: gold;">
+            <div class="card-body">
+              <h5 class="card-title">Naman Mathur</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <a target="_blank" href="https://www.linkedin.com/in/naman-mathur-318651167/" class="btn-get-started">Contact</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     {% else %}
-      The QUANTIZERS or any people in this venture are not registered with SEBI. This web app is solely meant to provide you with performance simulations on a portfolio that you will select based according to your financial intelligence. We are not certified under IA regulation in any manner. Therefore we are not liable for your money, and this platform is based on virtual money; hence you are not required to put in any of your real cash. Our optimization models will suggest you the best possible portfolio to invest in, but it's all on you whether to go with it or not. We will show you the real-world possibility scenarios of various assets, and that's all.<br><br>
-      This web application is entirely public and free to use.<br><br>
-      We suggest you not to take your investment decisions based on the information that we provide but on your own choice. All the investments that you make are subjected to market risks, so do thorough research before investing your hard-earned money. In any case, as we are not handling your real cash, therefore we won't be liable for any accusations. Any future complaints about any loss or damage will not be considered.
+    <h1 align="center" style="font-size: 50px;"><strong>Terms & Conditions</strong></h1>
+    <br>
+    <figure class="text-center">
+      <blockquote class="blockquote" style="padding: 0px 25px 0px 25px;">
+        <p>
+          The QUANTIZERS or any people in this venture are not registered with SEBI. This web app is solely meant to provide you with performance simulations on a portfolio that you will select based according to your financial intelligence. We are not certified under IA regulation in any manner. Therefore we are not liable for your money, and this platform is based on virtual money; hence you are not required to put in any of your real cash. Our optimization models will suggest you the best possible portfolio to invest in, but it's all on you whether to go with it or not. We will show you the real-world possibility scenarios of various assets, and that's all.<br><br>
+          This web application is entirely public and free to use.<br><br>
+          We suggest you not to take your investment decisions based on the information that we provide but on your own choice. All the investments that you make are subjected to market risks, so do thorough research before investing your hard-earned money. In any case, as we are not handling your real cash, therefore we won't be liable for any accusations. Any future complaints about any loss or damage will not be considered.
+        </p>
+      </blockquote>
+    </figure>
     {% endif %}
   </body>
 
