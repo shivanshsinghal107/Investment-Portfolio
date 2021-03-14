@@ -108,10 +108,10 @@ def register():
             subject = 'Getting started with Quantizers'
             body = '''Hey there fellow Investor!\n\nWe wish you the best of luck for your coming financial ventures as you join the Quantizers family. It takes a lot of courage to invest your hard-earned money in a domain of unknown nature. For this specific reason, we have created this web app but if you have any doubts or want some more info on the methodology used, drop at help.quantizers@gmail.com or through feedback form through the web app.\n\nAnd kindly go through the Terms and Conditions before performing any actual transaction -\n\nThe QUANTIZERS or any people in this venture are not registered with SEBI. This web app is solely meant to provide you with performance simulations on a portfolio that you will select based according to your financial intelligence. We are not certified under IA regulation in any manner. Therefore we are not liable for your money, and this platform is based on virtual money; hence you are not required to put in any of your Real Cash. Our optimization models will suggest the best possible portfolio to invest in through various mathematical portfolio optimization models, but it's all on you whether to go with it or not. We will show you the real-world possibility scenarios of multiple assets, and that's all.\n\nThis web application is entirely public and free to use.\n\nWe suggest you make your financial decision on your own choice and not solely based on our methods. All the investments that you make are subjected to market risks, so do thorough research before investing your hard-earned money. In any case, as we are not handling your real cash, therefore we won't be liable for any accusations. Any future complaints about any loss or damage will not be considered.\n\nKeep Investing!!\nThank You\nTeam Quantizers'''
             send_mail(email, subject, body)
-            return "<script>alert('Registered Successfully, check your mail');window.location = 'https://quantizers.herokuapp.com/';</script>"
+            return redirect("/")
         else:
             return render_template("register.html")
-
+"<script>alert('Login Successful');window.location = 'https://quantizers.herokuapp.com/';</script>"
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
     if session.get("logged_in"):
@@ -128,7 +128,7 @@ def login():
                     session["logged_in"] = True
                     session["username"] = username
                     db.close()
-                    return "<script>alert('Login Successful');window.location = 'https://quantizers.herokuapp.com/';</script>"
+                    return redirect("/")
                 else:
                     db.close()
                     return "<script>alert('Invalid password');window.location = 'https://quantizers.herokuapp.com/login';</script>"
