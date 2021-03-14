@@ -9,10 +9,6 @@
     <title>{{curruser}} Investments</title>
 
     <style>
-      body {
-          overflow-x: hidden;
-      }
-
       .chart{
           margin-top: 5px;
           text-align: center;
@@ -24,6 +20,7 @@
           }
 
           #invs-table {
+              overflow-y: hidden;
               overflow-x: scroll;
           }
       }
@@ -99,7 +96,7 @@
       </div>
     </div>
     <br><br>
-    <div id="invs-table">
+    <div class="table-responsive" id="invs-table">
       <table class="table-hover table table-dark">
         <thead>
           <tr>
