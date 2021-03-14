@@ -442,15 +442,25 @@ def display_asset(category, asset, show):
     curr_price = round(data.Close[-1], 2)
     db.close()
 
+    trace = go.Candlestick(
+        x = data.index,
+        open = data['Open'],
+        high = data['High'],
+        low = data['Low'],
+        close = data['Close']
+    )
+    data1 = [trace]
+    candlestick = json.dumps(data1, cls=plotly.utils.PlotlyJSONEncoder)
+
     trace = go.Scatter(
         x = data.index,
         y = data['Adj Close'],
         fill = 'tozeroy'
     )
-    data = [trace]
-    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+    data1 = [trace]
+    timeseries = json.dumps(data1, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return render_template("stock.html", graphJSON = graphJSON, asset = asset, category = category, symbol = a.symbol, curr_price = curr_price, currency = a.currency, show = show.title())
+    return render_template("stock.html", candlestick = candlestick, timeseries = timeseries, asset = asset, category = category, symbol = a.symbol, curr_price = curr_price, currency = a.currency, show = show.title())
 
 @app.route("/optimize", methods = ['GET', 'POST'])
 def take_input_custom():
