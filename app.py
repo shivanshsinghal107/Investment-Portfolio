@@ -111,7 +111,7 @@ def register():
             return redirect("/")
         else:
             return render_template("register.html")
-"<script>alert('Login Successful');window.location = 'https://quantizers.herokuapp.com/';</script>"
+
 @app.route("/login", methods = ['GET', 'POST'])
 def login():
     if session.get("logged_in"):
