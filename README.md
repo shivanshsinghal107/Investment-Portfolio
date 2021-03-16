@@ -1,22 +1,25 @@
-# Student Investment Portfolio (SIP) [(Video Demo)](https://www.youtube.com/watch?v=-NEdES7bYRQ)
-## Aim
-***This web app is the one-stop destination for all your investment needs and leads to a path of financial freedom.***<br>
-We, the ***Quantizers*** team, have created this web application focusing on **students** and people coming from *low-income class*.
-
-## Core Finance Concepts & Portfolio Optimization Techniques
-We have carefully selected handpicked stocks using **Fundamental Analysis** method to screen those who shined apart from the hundreds of other stocks present in the **Indian Stock Indices**.
-
-We have implemented following portfolio optimization techniques from scratch -
-- ***Markowitz Model*** - In this model, we can have a portfolio with variable returns for a fixed variance. As the model speaks for itself, we apply this model by fixing the variance to a set value and optimizing it to achieve the highest returns.
-- ***Minimum Variance*** - In this technique, we select stocks that generate steady revenue and minimize the portfolio variance to achieve a portfolio that comprises equity, which can hold their own even in the darkest of times.
-- ***Sharpe Ratio Maximization*** - In this technique, we maximize *sharpe ratio* using **Monte Carlo Simulations** to achieve an aggressive portfolio, which will result in an increment of your net worth by a considerable margin, but they also come with significant risk.
-
-## Features
-- Track Investments
-- Optimize Portfolio
-- Obtain Live Stats
-
-<img src="static/sip-by-quantizers.jpeg" height="560" width="350"> <img src="static/services-provided.jpeg" height="560" width="350">
+# Student Investment Portfolio (SIP)
+## How to run on local machine
+- Open terminal/cmd and either download the zip file of repository or clone using below command(if git is installed):<br>
+`git clone -b development --single-branch https://github.com/shivanshsinghal107/Investment-Portfolio.git`
+- Extract the zip file(if downloaded directly) and go into the directory using cd:<br>
+`cd DIRECTORY_NAME`
+- Create a python virtual enviroment using below command(make sure python3.6+ is installed on your machine):<br>
+  - For macOS or Linux:<br>
+  `python3 -m venv env`
+  - For Windows:<br>
+  `py -m venv env`
+- Activate the virtual enviroment:<br>
+  - For macOS or Linux:<br>
+  `source env/bin/activate`
+  - For Windows:<br>
+  `.\env\Scripts\activate`
+- Install all the dependencies/libraries required:<br>
+`pip3 install -r requirements.txt`
+- After completing the installation, run the below command to initialize the database:<br>
+`python3 data.py`
+- Now run the application using below command:<br>
+`flask run`
 
 ## Tech Stack
 ### Tools & Technologies
@@ -28,6 +31,4 @@ We have implemented following portfolio optimization techniques from scratch -
 - Python
 - HTML
 - CSS
-
-## Team Quantizers
-<img src="static/quantizers.jpeg" alt="quantizers" height="900" width="700">
+- JavaScript
