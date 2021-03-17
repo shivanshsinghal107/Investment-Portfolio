@@ -290,10 +290,10 @@ def investments():
                 if invs[i].quantity > 0:
                     p = prices[i]
                     pchange.append(round((p/invs[i].buy_price - 1)*100, 2))
-                    val = (p - invs[i].buy_price) * invs[i].quantity
+                    val = round((p - invs[i].buy_price) * invs[i].quantity)
                     if val < 0:
                         loss[syms[i]] = -1 * val
-                    else:
+                    elif val > 0:
                         profits[syms[i]] = val
                     net_pl += p * invs[i].quantity
                     da = invs[i].date[:10].split("-")
@@ -312,7 +312,7 @@ def investments():
             trace = go.Pie(
                 labels = list(profits.keys()),
                 values = list(profits.values()),
-                textposition = 'outside',
+                textposition = 'inside',
                 textinfo = 'percent+label',
                 hole = .6
             )
@@ -322,7 +322,7 @@ def investments():
             trace = go.Pie(
                 labels = list(loss.keys()),
                 values = list(loss.values()),
-                textposition = 'outside',
+                textposition = 'inside',
                 textinfo = 'percent+label',
                 hole = .6
             )
@@ -394,7 +394,7 @@ def portfolio():
             trace = go.Pie(
                 labels = list(investments.keys()),
                 values = list(investments.values()),
-                textposition = 'outside',
+                textposition = 'inside',
                 textinfo = 'percent+label',
                 hole = .6
             )
@@ -602,7 +602,7 @@ def optimization(type, stocks, money):
             trace = go.Pie(
                 labels = syms,
                 values = [int(i.replace(' %', '')) for i in sharpe_per_wts],
-                textposition = 'outside',
+                textposition = 'inside',
                 textinfo = 'percent+label',
             )
             data = [trace]
@@ -611,7 +611,7 @@ def optimization(type, stocks, money):
             trace = go.Pie(
                 labels = syms,
                 values = [int(i.replace(' %', '')) for i in var_per_wts],
-                textposition = 'outside',
+                textposition = 'inside',
                 textinfo = 'percent+label',
             )
             data = [trace]
@@ -621,7 +621,7 @@ def optimization(type, stocks, money):
                 trace = go.Pie(
                     labels = syms,
                     values = [int(i.replace(' %', '')) for i in max_return_per_wts],
-                    textposition = 'outside',
+                    textposition = 'inside',
                     textinfo = 'percent+label',
                 )
                 data = [trace]
@@ -700,7 +700,7 @@ def optimization(type, stocks, money):
             trace = go.Pie(
                 labels = syms,
                 values = [int(i.replace(' %', '')) for i in sharpe_per_wts],
-                textposition = 'outside',
+                textposition = 'inside',
                 textinfo = 'percent+label',
             )
             data = [trace]
@@ -709,7 +709,7 @@ def optimization(type, stocks, money):
             trace = go.Pie(
                 labels = syms,
                 values = [int(i.replace(' %', '')) for i in var_per_wts],
-                textposition = 'outside',
+                textposition = 'inside',
                 textinfo = 'percent+label',
             )
             data = [trace]
@@ -718,7 +718,7 @@ def optimization(type, stocks, money):
             trace = go.Pie(
                 labels = syms,
                 values = [int(i.replace(' %', '')) for i in max_return_per_wts],
-                textposition = 'outside',
+                textposition = 'inside',
                 textinfo = 'percent+label',
             )
             data = [trace]
