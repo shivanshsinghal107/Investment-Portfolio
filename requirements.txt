@@ -1,5 +1,5 @@
 numpy==1.24.2
-Flask==2.2.2
+Flask==2.3.2
 SQLAlchemy==2.0.7
 pandas_datareader==0.10.0
 yfinance==0.2.14
